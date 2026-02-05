@@ -1,0 +1,17 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#1e3a8a" />
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)" />
+  <g fill="none" stroke="#60a5fa" stroke-width="2" opacity="0.4">
+    <circle cx="100" cy="100" r="60" />
+    <circle cx="1120" cy="140" r="80" />
+    <circle cx="220" cy="520" r="90" />
+  </g>
+  <text x="80" y="270" font-size="56" font-family="Inter, system-ui, sans-serif" fill="#e2e8f0">phucle.dev</text>
+  <text x="80" y="340" font-size="32" font-family="Inter, system-ui, sans-serif" fill="#bfdbfe">Blog công nghệ • Kiến thức & kinh nghiệm</text>
+  <text x="80" y="430" font-size="24" font-family="Inter, system-ui, sans-serif" fill="#93c5fd">https://phucle.dev</text>
+</svg>
