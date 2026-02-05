@@ -33,5 +33,5 @@ jobs:
       - name: Reverse sync images to Notion
         env:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
-          SITE_URL: https://phucle.dev
+          SITE_URL: ${{ secrets.SITE_URL }}
         run: npm run reverse-sync
