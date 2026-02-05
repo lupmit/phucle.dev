@@ -8,6 +8,7 @@ on:
 jobs:
   sync:
     runs-on: ubuntu-latest
+    environment: phucle.dev
     if: github.ref == 'refs/heads/main'
 
     steps:
@@ -31,6 +32,9 @@ jobs:
 
       - name: Optimize images
         run: npm run optimize
+
+      - name: Format code
+        run: npm run format
 
       - name: Check for changes
         id: git-check
