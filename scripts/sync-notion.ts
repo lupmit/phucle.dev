@@ -30,6 +30,7 @@ interface NotionProperty {
   multi_select?: Array<{ name: string }>;
   date?: { start: string };
   checkbox?: boolean;
+  files?: Array<{ file?: { url: string }; external?: { url: string }; name: string }>;
 }
 
 interface PostData {
@@ -47,10 +48,12 @@ async function getExistingImages(slug: string): Promise<Map<string, string>> {
   try {
     const files = await fs.readdir(imageDir);
     for (const file of files) {
-      const match = file.match(/^(.+)-800\.webp$/);
+      const match = file.match(/^(.+)-(400|800|1200)\.webp$/);
       if (match) {
         const imageName = match[1];
-        existingImages.set(imageName, `/images/posts/${slug}/${imageName}-800.webp`);
+        if (!existingImages.has(imageName)) {
+          existingImages.set(imageName, `/images/posts/${slug}/${imageName}`);
+        }
       }
     }
   } catch {
@@ -179,6 +182,13 @@ function extractPropertyValue(property: NotionProperty): string | string[] | boo
       return property.date?.start || '';
     case 'checkbox':
       return property.checkbox || false;
+    case 'files': {
+      const file = property.files?.[0];
+      if (file) {
+        return file.file?.url || file.external?.url || '';
+      }
+      return '';
+    }
     default:
       return '';
   }
@@ -193,6 +203,7 @@ async function convertPageToMarkdown(page: DataSourceObjectResponse): Promise<Po
   const tags = (extractPropertyValue(props.Tags) || []) as string[];
   const description = (extractPropertyValue(props.Description) || '') as string;
   const published = extractPropertyValue(props.Published) as boolean;
+  const coverUrl = (extractPropertyValue(props.Cover) || '') as string;
 
   const blocks = await getPageBlocks(page.id);
   let body = blocks.map(blockToMarkdown).join('\n');
@@ -205,19 +216,32 @@ async function convertPageToMarkdown(page: DataSourceObjectResponse): Promise<Po
     const imageName = getImageNameFromUrl(url);
     if (imageName && existingImages.has(imageName)) {
       console.log(`  ⊙ Using existing image: ${imageName}`);
-      return `![${alt}](${existingImages.get(imageName)})`;
+      return `![${alt}](${existingImages.get(imageName)}-800.webp)`;
     }
     return match; // Keep original URL for new images
   });
 
-  const tagList = tags.map((t) => `"${t}"`).join(', ');
+  // Process cover image
+  let cover = '';
+  if (coverUrl) {
+    const coverName = getImageNameFromUrl(coverUrl);
+    if (coverName && existingImages.has(coverName)) {
+      cover = `${existingImages.get(coverName)}-1200.webp`;
+      console.log(`  ⊙ Using existing cover: ${coverName}`);
+    } else {
+      cover = coverUrl; // Keep original URL for optimization later
+    }
+  }
+
+  const tagList = tags.map((t) => `'${t}'`).join(', ');
   const frontmatter = `---
-title: "${title}"
-slug: "${slug}"
-date: "${date}"
+title: '${title.replace(/'/g, "''")}'
+slug: '${slug}'
+date: '${date}'
 tags: [${tagList}]
-description: "${description}"
+description: '${description.replace(/'/g, "''")}'
 published: ${published}
+cover: '${cover}'
 ---
 
 `;

@@ -43,6 +43,7 @@ imageData.forEach((img, index) => {
 <BaseLayout
   title={data.title}
   description={data.description}
+  image={data.cover || undefined}
   ogType="article"
   publishedTime={data.date.toISOString()}
   tags={data.tags}

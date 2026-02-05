@@ -42,15 +42,23 @@ async function cleanupUnusedImages(contentDir: string, publicImagesDir: string):
   for (const file of mdFiles) {
     const slug = file.replace('.md', '');
     const content = await fs.readFile(path.join(contentDir, file), 'utf-8');
-    // Match any size (400, 800, 1200) to get the base image name
-    const imageRefs = content.match(/\/images\/posts\/[^/]+\/[^/)]+-(400|800|1200)\.webp/g) || [];
 
     const imageNames = new Set<string>();
+
+    // Match inline images (any size)
+    const imageRefs = content.match(/\/images\/posts\/[^/]+\/[^/)]+-(400|800|1200)\.webp/g) || [];
     for (const ref of imageRefs) {
-      // Extract just the filename without size suffix
       const match = ref.match(/\/([^/]+)-(400|800|1200)\.webp$/);
       if (match) imageNames.add(match[1]);
     }
+
+    const coverMatch = content.match(
+      /^cover:\s*['"]?\/images\/posts\/[^/]+\/([^'"]+)-(400|800|1200)\.webp['"]?/m,
+    );
+    if (coverMatch) {
+      imageNames.add(coverMatch[1]);
+    }
+
     usedImages.set(slug, imageNames);
   }
 
@@ -127,19 +135,59 @@ async function processMarkdownImages(): Promise<void> {
 
   for (const file of mdFiles) {
     const filePath = path.join(contentDir, file);
-    const content = await fs.readFile(filePath, 'utf-8');
+    const originalContent = await fs.readFile(filePath, 'utf-8');
+    let content = originalContent;
+    const slug = file.replace('.md', '');
+    const imageDir = path.join(publicImagesDir, slug);
 
-    const imageRegex = /!\[([^\]]*)\]\(([^)]+)\)/g;
+    const coverMatch = content.match(/^cover:\s*['"]?(https?:\/\/[^'"]+)['"]?/m);
+    if (coverMatch) {
+      const coverUrl = coverMatch[1];
+      await fs.mkdir(imageDir, { recursive: true });
+
+      const imageName = path.basename(
+        new URL(coverUrl).pathname,
+        path.extname(new URL(coverUrl).pathname),
+      );
+
+      let alreadyProcessed = true;
+      for (const size of SIZES) {
+        const outputPath = path.join(imageDir, `${imageName}-${size}.webp`);
+        try {
+          await fs.access(outputPath);
+        } catch {
+          alreadyProcessed = false;
+          break;
+        }
+      }
+
+      if (!alreadyProcessed) {
+        console.log(`⬇ Downloading cover: ${coverUrl}`);
+        const imageBuffer = await downloadImage(coverUrl);
+
+        for (const size of SIZES) {
+          const outputPath = path.join(imageDir, `${imageName}-${size}.webp`);
+          await optimizeImage(imageBuffer, outputPath, size);
+          console.log(`✓ Generated cover: ${imageName}-${size}.webp`);
+        }
+      } else {
+        console.log(`⊙ Skipped cover (already exists): ${slug}/${imageName}`);
+      }
+
+      content = content.replace(
+        coverMatch[0],
+        `cover: '/images/posts/${slug}/${imageName}-1200.webp'`,
+      );
+    }
+
+    // Process inline images
+    const imageRegex = /!\[([^\]]*)\]\((https?:\/\/[^)]+)\)/g;
     let match: RegExpExecArray | null;
     let updatedContent = content;
-    const slug = file.replace('.md', '');
 
     while ((match = imageRegex.exec(content)) !== null) {
       const [fullMatch, alt, imageUrl] = match;
 
-      if (!imageUrl.startsWith('http')) continue;
-
-      const imageDir = path.join(publicImagesDir, slug);
       await fs.mkdir(imageDir, { recursive: true });
 
       const imageName = path.basename(
@@ -182,7 +230,7 @@ async function processMarkdownImages(): Promise<void> {
       );
     }
 
-    if (updatedContent !== content) {
+    if (updatedContent !== originalContent) {
       await fs.writeFile(filePath, updatedContent, 'utf-8');
       console.log(`✓ Updated: ${file}`);
     }
