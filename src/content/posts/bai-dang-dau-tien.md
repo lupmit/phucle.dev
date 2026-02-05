@@ -4,7 +4,7 @@ slug: 'bai-dang-dau-tien'
 date: '2026-02-05'
 tags: ['IT', 'Sercurity']
 description: 'Đây là description của bài đăng đầu tiên'
-published: true
+published: false
 ---
 
 # Đây là heading 1
