@@ -59,12 +59,14 @@ cp .env.example .env
 ```
 
 Fill in the values:
+
 - `NOTION_TOKEN`
 - `DATABASE_ID`
 
 ### 4. Setup GitHub Secrets
 
 Go to repository Settings > Secrets and variables > Actions, add:
+
 - `NOTION_TOKEN`
 - `DATABASE_ID`
 
@@ -98,6 +100,7 @@ yarn optimize
 ## GitHub Actions
 
 Workflow runs automatically:
+
 - Manual trigger (workflow_dispatch)
 - Every 3 hours (cron schedule)
 
@@ -106,6 +109,7 @@ Only commits when content changes detected.
 ## Image Convention
 
 All images are optimized at build time:
+
 - 400px (mobile)
 - 800px (content)
 - 1200px (hero)

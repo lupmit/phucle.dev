@@ -11,13 +11,15 @@ function downloadImage(url: string): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const client = url.startsWith('https') ? https : http;
 
-    client.get(url, response => {
-      const chunks: Buffer[] = [];
+    client
+      .get(url, (response) => {
+        const chunks: Buffer[] = [];
 
-      response.on('data', chunk => chunks.push(chunk));
-      response.on('end', () => resolve(Buffer.concat(chunks)));
-      response.on('error', reject);
-    }).on('error', reject);
+        response.on('data', (chunk) => chunks.push(chunk));
+        response.on('end', () => resolve(Buffer.concat(chunks)));
+        response.on('error', reject);
+      })
+      .on('error', reject);
   });
 }
 
@@ -31,13 +33,8 @@ async function optimizeImage(buffer: Buffer, outputPath: string, width: number):
     .toFile(outputPath);
 }
 
-async function cleanupUnusedImages(
-  contentDir: string,
-  publicImagesDir: string
-): Promise<void> {
-  const mdFiles = (await fs.readdir(contentDir)).filter((f) =>
-    f.endsWith('.md')
-  );
+async function cleanupUnusedImages(contentDir: string, publicImagesDir: string): Promise<void> {
+  const mdFiles = (await fs.readdir(contentDir)).filter((f) => f.endsWith('.md'));
   const activeSlugs = new Set(mdFiles.map((f) => f.replace('.md', '')));
 
   const usedImages = new Map<string, Set<string>>();
@@ -46,9 +43,7 @@ async function cleanupUnusedImages(
     const slug = file.replace('.md', '');
     const content = await fs.readFile(path.join(contentDir, file), 'utf-8');
     // Match any size (400, 800, 1200) to get the base image name
-    const imageRefs =
-      content.match(/\/images\/posts\/[^/]+\/[^/)]+-(400|800|1200)\.webp/g) ||
-      [];
+    const imageRefs = content.match(/\/images\/posts\/[^/]+\/[^/)]+-(400|800|1200)\.webp/g) || [];
 
     const imageNames = new Set<string>();
     for (const ref of imageRefs) {
@@ -147,7 +142,10 @@ async function processMarkdownImages(): Promise<void> {
       const imageDir = path.join(publicImagesDir, slug);
       await fs.mkdir(imageDir, { recursive: true });
 
-      const imageName = path.basename(new URL(imageUrl).pathname, path.extname(new URL(imageUrl).pathname));
+      const imageName = path.basename(
+        new URL(imageUrl).pathname,
+        path.extname(new URL(imageUrl).pathname),
+      );
 
       let alreadyProcessed = true;
       for (const size of SIZES) {
@@ -164,7 +162,7 @@ async function processMarkdownImages(): Promise<void> {
         console.log(`⊙ Skipped (already exists): ${slug}/${imageName}`);
         updatedContent = updatedContent.replace(
           fullMatch,
-          `![${alt}](/images/posts/${slug}/${imageName}-800.webp)`
+          `![${alt}](/images/posts/${slug}/${imageName}-800.webp)`,
         );
         continue;
       }
@@ -180,7 +178,7 @@ async function processMarkdownImages(): Promise<void> {
 
       updatedContent = updatedContent.replace(
         fullMatch,
-        `![${alt}](/images/posts/${slug}/${imageName}-800.webp)`
+        `![${alt}](/images/posts/${slug}/${imageName}-800.webp)`,
       );
     }
 

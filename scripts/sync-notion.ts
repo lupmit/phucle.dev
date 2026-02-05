@@ -1,11 +1,11 @@
-import "dotenv/config";
-import { Client } from "@notionhq/client";
+import 'dotenv/config';
+import { Client } from '@notionhq/client';
 import type {
   DataSourceObjectResponse,
-  QueryDataSourceResponse
-} from "@notionhq/client/build/src/api-endpoints";
-import fs from "fs/promises";
-import path from "path";
+  QueryDataSourceResponse,
+} from '@notionhq/client/build/src/api-endpoints';
+import fs from 'fs/promises';
+import path from 'path';
 
 interface NotionBlock {
   type: string;
@@ -41,7 +41,7 @@ const notion = new Client({ auth: process.env.NOTION_TOKEN });
 const databaseId = process.env.DATABASE_ID!;
 
 async function getExistingImages(slug: string): Promise<Map<string, string>> {
-  const imageDir = path.join(process.cwd(), "public", "images", "posts", slug);
+  const imageDir = path.join(process.cwd(), 'public', 'images', 'posts', slug);
   const existingImages = new Map<string, string>();
 
   try {
@@ -66,9 +66,9 @@ function getImageNameFromUrl(imageUrl: string): string {
     const pathname = url.pathname;
     const basename = path.basename(pathname);
     const ext = path.extname(basename);
-    return basename.replace(ext, "");
+    return basename.replace(ext, '');
   } catch {
-    return "";
+    return '';
   }
 }
 
@@ -76,7 +76,7 @@ async function getPublishedPosts(): Promise<DataSourceObjectResponse[]> {
   const response: QueryDataSourceResponse = await notion.dataSources.query({
     data_source_id: databaseId,
     filter: {
-      property: "Published",
+      property: 'Published',
       checkbox: {
         equals: true,
       },
@@ -88,15 +88,19 @@ async function getPublishedPosts(): Promise<DataSourceObjectResponse[]> {
 async function getPageBlocks(pageId: string): Promise<NotionBlock[]> {
   const blocks: NotionBlock[] = [];
   let cursor: string | undefined;
+  let hasMore = true;
 
-  while (true) {
+  while (hasMore) {
     const { results, next_cursor } = await notion.blocks.children.list({
       block_id: pageId,
       start_cursor: cursor,
     });
     blocks.push(...(results as NotionBlock[]));
-    if (!next_cursor) break;
-    cursor = next_cursor;
+    if (!next_cursor) {
+      hasMore = false;
+    } else {
+      cursor = next_cursor;
+    }
   }
 
   return blocks;
@@ -106,49 +110,51 @@ function blockToMarkdown(block: NotionBlock): string {
   const type = block.type;
   const content = block[type] as Record<string, unknown>;
 
-  if (!content) return "";
+  if (!content) return '';
 
   switch (type) {
-    case "paragraph":
-      return richTextToMarkdown(content.rich_text as RichText[]) + "\n";
+    case 'paragraph':
+      return richTextToMarkdown(content.rich_text as RichText[]) + '\n';
 
-    case "heading_1":
-      return "# " + richTextToMarkdown(content.rich_text as RichText[]) + "\n";
+    case 'heading_1':
+      return '# ' + richTextToMarkdown(content.rich_text as RichText[]) + '\n';
 
-    case "heading_2":
-      return "## " + richTextToMarkdown(content.rich_text as RichText[]) + "\n";
+    case 'heading_2':
+      return '## ' + richTextToMarkdown(content.rich_text as RichText[]) + '\n';
 
-    case "heading_3":
-      return "### " + richTextToMarkdown(content.rich_text as RichText[]) + "\n";
+    case 'heading_3':
+      return '### ' + richTextToMarkdown(content.rich_text as RichText[]) + '\n';
 
-    case "bulleted_list_item":
-      return "- " + richTextToMarkdown(content.rich_text as RichText[]) + "\n";
+    case 'bulleted_list_item':
+      return '- ' + richTextToMarkdown(content.rich_text as RichText[]) + '\n';
 
-    case "numbered_list_item":
-      return "1. " + richTextToMarkdown(content.rich_text as RichText[]) + "\n";
+    case 'numbered_list_item':
+      return '1. ' + richTextToMarkdown(content.rich_text as RichText[]) + '\n';
 
-    case "code":
-      const lang = (content.language as string) || "";
+    case 'code': {
+      const lang = (content.language as string) || '';
       const code = richTextToMarkdown(content.rich_text as RichText[]);
-      return "```" + lang + "\n" + code + "\n```\n";
+      return '```' + lang + '\n' + code + '\n```\n';
+    }
 
-    case "quote":
-      return "> " + richTextToMarkdown(content.rich_text as RichText[]) + "\n";
+    case 'quote':
+      return '> ' + richTextToMarkdown(content.rich_text as RichText[]) + '\n';
 
-    case "image":
+    case 'image': {
       const file = content.file as { url?: string } | undefined;
       const external = content.external as { url?: string } | undefined;
       const imageUrl = file?.url || external?.url;
-      if (!imageUrl) return "";
+      if (!imageUrl) return '';
       return `![image](${imageUrl})\n`;
+    }
 
     default:
-      return "";
+      return '';
   }
 }
 
 function richTextToMarkdown(richTextArray: RichText[]): string {
-  if (!richTextArray) return "";
+  if (!richTextArray) return '';
 
   return richTextArray
     .map((text) => {
@@ -162,25 +168,25 @@ function richTextToMarkdown(richTextArray: RichText[]): string {
 
       return content;
     })
-    .join("");
+    .join('');
 }
 
 function extractPropertyValue(property: NotionProperty): string | string[] | boolean {
   const type = property.type;
 
   switch (type) {
-    case "title":
+    case 'title':
       return richTextToMarkdown(property.title!);
-    case "rich_text":
+    case 'rich_text':
       return richTextToMarkdown(property.rich_text!);
-    case "multi_select":
+    case 'multi_select':
       return property.multi_select!.map((item) => item.name);
-    case "date":
-      return property.date?.start || "";
-    case "checkbox":
+    case 'date':
+      return property.date?.start || '';
+    case 'checkbox':
       return property.checkbox || false;
     default:
-      return "";
+      return '';
   }
 }
 
@@ -191,10 +197,10 @@ async function convertPageToMarkdown(page: DataSourceObjectResponse): Promise<Po
   const slug = extractPropertyValue(props.Slug) as string;
   const date = extractPropertyValue(props.Date) as string;
   const tags = (extractPropertyValue(props.Tags) || []) as string[];
-  const description = (extractPropertyValue(props.Description) || "") as string;
+  const description = (extractPropertyValue(props.Description) || '') as string;
 
   const blocks = await getPageBlocks(page.id);
-  let body = blocks.map(blockToMarkdown).join("\n");
+  let body = blocks.map(blockToMarkdown).join('\n');
 
   // Replace Notion image URLs with local paths if images already exist
   const existingImages = await getExistingImages(slug);
@@ -209,7 +215,7 @@ async function convertPageToMarkdown(page: DataSourceObjectResponse): Promise<Po
     return match; // Keep original URL for new images
   });
 
-  const tagList = tags.map((t) => `"${t}"`).join(", ");
+  const tagList = tags.map((t) => `"${t}"`).join(', ');
   const frontmatter = `---
 title: "${title}"
 slug: "${slug}"
@@ -227,22 +233,22 @@ description: "${description}"
 }
 
 async function syncNotion(): Promise<void> {
-  console.log("Fetching published posts from Notion...");
+  console.log('Fetching published posts from Notion...');
   const posts = await getPublishedPosts();
   console.log(`Found ${posts.length} published posts`);
 
-  const contentDir = path.join(process.cwd(), "src", "content", "posts");
+  const contentDir = path.join(process.cwd(), 'src', 'content', 'posts');
   await fs.mkdir(contentDir, { recursive: true });
 
   for (const post of posts) {
     const { slug, content } = await convertPageToMarkdown(post);
     const filePath = path.join(contentDir, `${slug}.md`);
 
-    await fs.writeFile(filePath, content, "utf-8");
+    await fs.writeFile(filePath, content, 'utf-8');
     console.log(`✓ Synced: ${slug}.md`);
   }
 
-  console.log("Sync completed!");
+  console.log('Sync completed!');
 }
 
 syncNotion().catch(console.error);

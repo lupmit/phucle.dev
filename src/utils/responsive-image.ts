@@ -4,16 +4,10 @@ export interface ImageInfo {
   alt: string;
 }
 
-export function generateResponsiveImageHtml(
-  img: ImageInfo,
-  fallbackSlug: string
-): string {
+export function generateResponsiveImageHtml(img: ImageInfo, fallbackSlug: string): string {
   const resolvedSlug = img.postSlug || fallbackSlug;
   const srcset = [400, 800, 1200]
-    .map(
-      (size) =>
-        `/images/posts/${resolvedSlug}/${img.imageName}-${size}.webp ${size}w`
-    )
+    .map((size) => `/images/posts/${resolvedSlug}/${img.imageName}-${size}.webp ${size}w`)
     .join(', ');
 
   return `<img

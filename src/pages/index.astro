@@ -3,7 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 
 const posts = (await getCollection('posts'))
-  .map(post => ({
+  .map((post) => ({
     slug: post.data.slug ?? post.slug,
     title: post.data.title,
     date: post.data.date,
@@ -13,50 +13,53 @@ const posts = (await getCollection('posts'))
   .sort((a, b) => b.date.getTime() - a.date.getTime());
 ---
 
-<BaseLayout title="phucle.dev - Blog công nghệ" description="Chia sẻ kiến thức và kinh nghiệm lập trình">
+<BaseLayout
+  title="phucle.dev - Blog công nghệ"
+  description="Chia sẻ kiến thức và kinh nghiệm lập trình"
+>
   <div class="space-y-8">
-    <div class="text-center mb-12">
-      <h1 class="text-4xl font-bold mb-4">Blog công nghệ</h1>
-      <p class="text-gray-600 text-lg">
+    <div class="mb-12 text-center">
+      <h1 class="mb-4 text-4xl font-bold">Blog công nghệ</h1>
+      <p class="text-lg text-gray-600">
         Chia sẻ những gì tôi học được, những thứ hay ho và hành trình với dòng mã
       </p>
     </div>
 
-    {posts.length === 0 ? (
-      <div class="text-center py-12">
-        <p class="text-gray-500">Chưa có bài viết nào. Hãy thêm bài viết đầu tiên từ Notion!</p>
-      </div>
-    ) : (
-      <div class="space-y-6">
-        {posts.map(post => (
-          <article class="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
-            <a href={`/posts/${post.slug}`} class="block group">
-              <h2 class="text-2xl font-bold text-gray-900 group-hover:text-blue-600 mb-2">
-                {post.title}
-              </h2>
-              <time class="text-sm text-gray-500 block mb-3">
-                {post.date.toLocaleDateString('vi-VN', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                })}
-              </time>
-              {post.description && (
-                <p class="text-gray-700 mb-4">{post.description}</p>
-              )}
-              {post.tags.length > 0 && (
-                <div class="flex flex-wrap gap-2">
-                  {post.tags.map((tag: string) => (
-                    <span class="px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-full">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </a>
-          </article>
-        ))}
-      </div>
-    )}
+    {
+      posts.length === 0 ? (
+        <div class="py-12 text-center">
+          <p class="text-gray-500">Chưa có bài viết nào. Hãy thêm bài viết đầu tiên từ Notion!</p>
+        </div>
+      ) : (
+        <div class="space-y-6">
+          {posts.map((post) => (
+            <article class="rounded-lg bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
+              <a href={`/posts/${post.slug}`} class="group block">
+                <h2 class="mb-2 text-2xl font-bold text-gray-900 group-hover:text-blue-600">
+                  {post.title}
+                </h2>
+                <time class="mb-3 block text-sm text-gray-500">
+                  {post.date.toLocaleDateString('vi-VN', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })}
+                </time>
+                {post.description && <p class="mb-4 text-gray-700">{post.description}</p>}
+                {post.tags.length > 0 && (
+                  <div class="flex flex-wrap gap-2">
+                    {post.tags.map((tag: string) => (
+                      <span class="rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-700">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </a>
+            </article>
+          ))}
+        </div>
+      )
+    }
   </div>
 </BaseLayout>
