@@ -9,6 +9,7 @@
     "astro": "astro",
     "sync": "tsx scripts/sync-notion.ts",
     "optimize": "tsx scripts/optimize-image.ts",
+    "reverse-sync": "tsx scripts/reverse-sync-images.ts",
     "lint": "eslint .",
     "format": "prettier . --write",
     "format:check": "prettier . --check"

@@ -8,7 +8,7 @@ Personal tech blog built with a fully static architecture using Notion as CMS.
 Notion (CMS)
   ↓
 GitHub Actions (CI)
-  - Sync content from Notion
+  - Sync content from Notion (every 3h)
   - Download & optimize images (400, 800, 1200px WebP)
   - Generate Markdown + frontmatter
   ↓
@@ -17,6 +17,11 @@ GitHub Repository (public)
 Cloudflare Pages (CDN static)
   ↓
 User
+
+GitHub Actions (Reverse Sync - 12h AM)
+  - Update Notion with optimized image URLs
+  ↓
+Notion (lighter images for writing experience)
 ```
 
 ## Tech Stack
@@ -35,7 +40,7 @@ User
 ```bash
 git clone <your-repo-url>
 cd phucle.dev
-yarn install --ignore-engines
+npm install
 ```
 
 ### 2. Configure Notion
@@ -49,6 +54,7 @@ yarn install --ignore-engines
    - Date (Date)
    - Tags (Multi-select)
    - Description (Text)
+   - Cover (Files & media)
 4. Share database with integration
 5. Get `DATABASE_ID` from database URL
 
@@ -70,57 +76,69 @@ Go to repository Settings > Secrets and variables > Actions, add:
 - `NOTION_TOKEN`
 - `DATABASE_ID`
 
-## Usage
+Create environment `phucle.dev` with same secrets for workflows.
 
-### Development
+## Scripts
 
-```bash
-yarn dev
-```
+| Script                 | Description                       |
+| ---------------------- | --------------------------------- |
+| `npm run dev`          | Start development server          |
+| `npm run build`        | Build for production              |
+| `npm run preview`      | Preview production build          |
+| `npm run sync`         | Sync content from Notion          |
+| `npm run optimize`     | Download & optimize images        |
+| `npm run reverse-sync` | Update Notion with optimized URLs |
+| `npm run lint`         | Run ESLint                        |
+| `npm run format`       | Format code with Prettier         |
 
-### Build
-
-```bash
-yarn build
-```
-
-### Preview
-
-```bash
-yarn preview
-```
-
-### Sync content from Notion (manual)
+### Typical workflow
 
 ```bash
-yarn sync
-yarn optimize
+# Development
+npm run sync        # Get content from Notion
+npm run optimize    # Process images
+npm run dev         # Start dev server
+
+# After deploy (optional - improves Notion editing experience)
+npm run reverse-sync
 ```
 
 ## GitHub Actions
 
-Workflow runs automatically:
+### sync.yml
 
-- Manual trigger (workflow_dispatch)
-- Every 3 hours (cron schedule)
+- **Trigger**: Manual or every 3 hours
+- **Flow**: Sync → Optimize → Format → Commit & Push
+- Only commits when content changes detected
 
-Only commits when content changes detected.
+### reverse-sync.yml
 
-## Image Convention
+- **Trigger**: Manual or daily at 12:00 AM (Vietnam time)
+- **Flow**: Sync → Update Notion with deployed image URLs
+- Improves Notion editing experience with lighter images
 
-All images are optimized at build time:
+## Image Pipeline
 
-- 400px (mobile)
-- 800px (content)
-- 1200px (hero)
-- Format: WebP, quality 80
+1. **Sync**: Get image URLs from Notion
+2. **Optimize**: Download, resize (400/800/1200px), convert to WebP
+3. **Store**: Save to `public/images/posts/{slug}/`
+4. **Update MD**: Replace URLs with local paths
+5. **Reverse sync** (optional): Update Notion with deployed URLs
 
-HTML output uses `srcset` for browser to select appropriate size.
+### Image naming
+
+```
+{image-name}-400.webp  # Mobile
+{image-name}-800.webp  # Content (inline images)
+{image-name}-1200.webp # Hero (cover images, OG)
+```
+
+HTML uses `srcset` for browser to select appropriate size.
 
 ## Deploy to Cloudflare Pages
 
 1. Connect repository to Cloudflare Pages
-2. Build command: `yarn build`
+2. Build command: `npm run build`
 3. Output directory: `dist`
 4. Every push to main branch triggers auto deploy
 
@@ -128,9 +146,10 @@ HTML output uses `srcset` for browser to select appropriate size.
 
 - **100% static** - No database, no backend, no runtime image processing
 - **CDN global** - Cloudflare Pages with unlimited bandwidth
-- **SEO optimized** - Meta tags, sitemap, semantic HTML
+- **SEO optimized** - Meta tags, sitemap, semantic HTML, OG images
 - **Performance** - WebP images with srcset, lazy loading
 - **Zero cost** - GitHub Actions free for public repos, Cloudflare Pages free tier
+- **Bidirectional sync** - Notion ↔ Website image optimization
 
 ## License
 

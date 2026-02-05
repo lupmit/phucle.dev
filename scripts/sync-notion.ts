@@ -36,6 +36,27 @@ interface NotionProperty {
 interface PostData {
   slug: string;
   content: string;
+  postMappings: PostMappings;
+}
+
+interface ImageMapping {
+  blockId: string;
+  imageName: string;
+  pageId: string;
+}
+
+interface CoverMapping {
+  pageId: string;
+  imageName: string;
+}
+
+interface PostMappings {
+  images: ImageMapping[];
+  cover?: CoverMapping;
+}
+
+interface ImageMappings {
+  [slug: string]: PostMappings;
 }
 
 const notion = new Client({ auth: process.env.NOTION_TOKEN });
@@ -69,7 +90,10 @@ function getImageNameFromUrl(imageUrl: string): string {
     const pathname = url.pathname;
     const basename = path.basename(pathname);
     const ext = path.extname(basename);
-    return basename.replace(ext, '');
+    let name = basename.replace(ext, '');
+    // Remove size suffix if present (e.g., image-800 → image)
+    name = name.replace(/-(400|800|1200)$/, '');
+    return name;
   } catch {
     return '';
   }
@@ -82,8 +106,12 @@ async function getAllPosts(): Promise<DataSourceObjectResponse[]> {
   return response.results as DataSourceObjectResponse[];
 }
 
-async function getPageBlocks(pageId: string): Promise<NotionBlock[]> {
-  const blocks: NotionBlock[] = [];
+interface BlockWithId extends NotionBlock {
+  id: string;
+}
+
+async function getPageBlocks(pageId: string): Promise<BlockWithId[]> {
+  const blocks: BlockWithId[] = [];
   let cursor: string | undefined;
   let hasMore = true;
 
@@ -92,7 +120,7 @@ async function getPageBlocks(pageId: string): Promise<NotionBlock[]> {
       block_id: pageId,
       start_cursor: cursor,
     });
-    blocks.push(...(results as NotionBlock[]));
+    blocks.push(...(results as BlockWithId[]));
     if (!next_cursor) {
       hasMore = false;
     } else {
@@ -206,6 +234,26 @@ async function convertPageToMarkdown(page: DataSourceObjectResponse): Promise<Po
   const coverUrl = (extractPropertyValue(props.Cover) || '') as string;
 
   const blocks = await getPageBlocks(page.id);
+
+  // Collect image mappings for reverse sync
+  const imageMappings: ImageMapping[] = [];
+  for (const block of blocks) {
+    if (block.type === 'image') {
+      const content = block.image as { file?: { url: string }; external?: { url: string } };
+      const imageUrl = content.file?.url || content.external?.url;
+      if (imageUrl) {
+        const imageName = getImageNameFromUrl(imageUrl);
+        if (imageName) {
+          imageMappings.push({
+            blockId: block.id,
+            imageName,
+            pageId: page.id,
+          });
+        }
+      }
+    }
+  }
+
   let body = blocks.map(blockToMarkdown).join('\n');
 
   // Replace Notion image URLs with local paths if images already exist
@@ -223,6 +271,7 @@ async function convertPageToMarkdown(page: DataSourceObjectResponse): Promise<Po
 
   // Process cover image
   let cover = '';
+  let coverMapping: CoverMapping | undefined;
   if (coverUrl) {
     const coverName = getImageNameFromUrl(coverUrl);
     if (coverName && existingImages.has(coverName)) {
@@ -230,6 +279,9 @@ async function convertPageToMarkdown(page: DataSourceObjectResponse): Promise<Po
       console.log(`  ⊙ Using existing cover: ${coverName}`);
     } else {
       cover = coverUrl; // Keep original URL for optimization later
+      if (coverName) {
+        coverMapping = { pageId: page.id, imageName: coverName };
+      }
     }
   }
 
@@ -249,6 +301,10 @@ cover: '${cover}'
   return {
     slug,
     content: frontmatter + body,
+    postMappings: {
+      images: imageMappings,
+      cover: coverMapping,
+    },
   };
 }
 
@@ -260,13 +316,24 @@ async function syncNotion(): Promise<void> {
   const contentDir = path.join(process.cwd(), 'src', 'content', 'posts');
   await fs.mkdir(contentDir, { recursive: true });
 
+  const allMappings: ImageMappings = {};
+
   for (const post of posts) {
-    const { slug, content } = await convertPageToMarkdown(post);
+    const { slug, content, postMappings } = await convertPageToMarkdown(post);
     const filePath = path.join(contentDir, `${slug}.md`);
 
     await fs.writeFile(filePath, content, 'utf-8');
     console.log(`✓ Synced: ${slug}.md`);
+
+    if (postMappings.images.length > 0 || postMappings.cover) {
+      allMappings[slug] = postMappings;
+    }
   }
+
+  // Save image mappings for reverse sync
+  const mappingsPath = path.join(process.cwd(), '.notion-image-mappings.json');
+  await fs.writeFile(mappingsPath, JSON.stringify(allMappings, null, 2), 'utf-8');
+  console.log('✓ Saved image mappings for reverse sync');
 
   console.log('Sync completed!');
 }
