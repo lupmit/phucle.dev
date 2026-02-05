@@ -3,7 +3,7 @@ name: Reverse Sync Images to Notion
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 17 * * *' # 12h đêm giờ Việt Nam (UTC+7)
+    - cron: '0 17 * * *' # 12AM (UTC+7)
 
 jobs:
   reverse-sync:
