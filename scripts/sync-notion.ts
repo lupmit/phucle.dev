@@ -72,15 +72,9 @@ function getImageNameFromUrl(imageUrl: string): string {
   }
 }
 
-async function getPublishedPosts(): Promise<DataSourceObjectResponse[]> {
+async function getAllPosts(): Promise<DataSourceObjectResponse[]> {
   const response: QueryDataSourceResponse = await notion.dataSources.query({
     data_source_id: databaseId,
-    filter: {
-      property: 'Published',
-      checkbox: {
-        equals: true,
-      },
-    },
   });
   return response.results as DataSourceObjectResponse[];
 }
@@ -198,6 +192,7 @@ async function convertPageToMarkdown(page: DataSourceObjectResponse): Promise<Po
   const date = extractPropertyValue(props.Date) as string;
   const tags = (extractPropertyValue(props.Tags) || []) as string[];
   const description = (extractPropertyValue(props.Description) || '') as string;
+  const published = extractPropertyValue(props.Published) as boolean;
 
   const blocks = await getPageBlocks(page.id);
   let body = blocks.map(blockToMarkdown).join('\n');
@@ -222,6 +217,7 @@ slug: "${slug}"
 date: "${date}"
 tags: [${tagList}]
 description: "${description}"
+published: ${published}
 ---
 
 `;
@@ -233,9 +229,9 @@ description: "${description}"
 }
 
 async function syncNotion(): Promise<void> {
-  console.log('Fetching published posts from Notion...');
-  const posts = await getPublishedPosts();
-  console.log(`Found ${posts.length} published posts`);
+  console.log('Fetching all posts from Notion...');
+  const posts = await getAllPosts();
+  console.log(`Found ${posts.length} posts`);
 
   const contentDir = path.join(process.cwd(), 'src', 'content', 'posts');
   await fs.mkdir(contentDir, { recursive: true });
