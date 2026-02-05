@@ -2,9 +2,10 @@
 title: 'Bài đăng đầu tiên'
 slug: 'bai-dang-dau-tien'
 date: '2026-02-05'
-tags: ['IT', 'Sercurity']
+tags: ['IT', 'Sercurity', 'Liu tiudiu']
 description: 'Đây là description của bài đăng đầu tiên'
-published: false
+published: true
+cover: '/images/posts/bai-dang-dau-tien/pexels-olesia-libra-417944690-16104144-1200.webp'
 ---
 
 # Đây là heading 1
