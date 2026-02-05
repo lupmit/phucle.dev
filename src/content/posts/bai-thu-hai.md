@@ -4,6 +4,7 @@ slug: 'bai-thu-hai'
 date: '2026-02-06'
 tags: ['IT']
 description: 'Đây là description của bài đăng thứ 2'
+published: true
 ---
 
 bạn ăn cơm chưa >>>
