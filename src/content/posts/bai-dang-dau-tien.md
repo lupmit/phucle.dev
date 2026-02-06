@@ -18,3 +18,5 @@ console.log(x);
 Bạn có khoẻ hân!
 
 ![image](/images/posts/bai-dang-dau-tien/photo-1528712306091-ed0763094c98-800.webp)
+
+Damn.
