@@ -1,21 +1,3 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@layer base {
-  html {
-    background-color: white;
-  }
-
-  html.dark {
-    background-color: #0a0a0a;
-  }
-
-  body {
-    background-color: white;
-  }
-
-  .dark body {
-    background-color: #0a0a0a;
-  }
-}
