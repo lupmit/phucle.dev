@@ -44,8 +44,8 @@ function getCoverSrcset(cover: string) {
   if (!match) return null;
   const [, base, , ext] = match;
   return {
-    src: `${base}-800.${ext}`,
-    srcset: `${base}-400.${ext} 400w, ${base}-800.${ext} 800w, ${base}-1200.${ext} 1200w`,
+    src: `${base}-768.${ext}`,
+    srcset: `${base}-320.${ext} 320w, ${base}-480.${ext} 480w, ${base}-768.${ext} 768w, ${base}-1200.${ext} 1200w`,
   };
 }
 const coverData = data.cover ? getCoverSrcset(data.cover) : null;
@@ -96,7 +96,7 @@ renderer.code = ({ text, lang }: { text: string; lang?: string }) => {
 };
 
 renderer.image = ({ href, text }: { href: string; text: string }) => {
-  const match = href.match(/\/images\/posts\/([^/]+)\/(.+)-800\.webp/);
+  const match = href.match(/\/images\/posts\/([^/]+)\/(.+)-768\.webp/);
   if (match) {
     const [, postSlug, imageName] = match;
     imageData.push({ postSlug, imageName, alt: text });
@@ -180,8 +180,8 @@ imageData.forEach((img, index) => {
             srcset={coverData.srcset}
             sizes="(max-width: 768px) calc(100vw - 48px), 720px"
             alt={data.title}
-            width="800"
-            height="420"
+            width="768"
+            height="403"
             fetchpriority="high"
             class="aspect-[40/21] w-full object-cover"
           />

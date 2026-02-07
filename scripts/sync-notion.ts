@@ -30,7 +30,6 @@ interface NotionProperty {
   multi_select?: Array<{ name: string }>;
   date?: { start: string };
   checkbox?: boolean;
-  files?: Array<{ file?: { url: string }; external?: { url: string }; name: string }>;
 }
 
 interface PostData {
@@ -69,7 +68,7 @@ async function getExistingImages(slug: string): Promise<Map<string, string>> {
   try {
     const files = await fs.readdir(imageDir);
     for (const file of files) {
-      const match = file.match(/^(.+)-(400|800|1200)\.webp$/);
+      const match = file.match(/^(.+)-\d+\.webp$/);
       if (match) {
         const imageName = match[1];
         if (!existingImages.has(imageName)) {
@@ -91,8 +90,8 @@ function getImageNameFromUrl(imageUrl: string): string {
     const basename = path.basename(pathname);
     const ext = path.extname(basename);
     let name = basename.replace(ext, '');
-    // Remove size suffix if present (e.g., image-800 → image)
-    name = name.replace(/-(400|800|1200)$/, '');
+    // Remove size suffix if present (e.g., image-768 → image)
+    name = name.replace(/-\d+$/, '');
     return name;
   } catch {
     return '';
@@ -210,13 +209,6 @@ function extractPropertyValue(property: NotionProperty): string | string[] | boo
       return property.date?.start || '';
     case 'checkbox':
       return property.checkbox || false;
-    case 'files': {
-      const file = property.files?.[0];
-      if (file) {
-        return file.file?.url || file.external?.url || '';
-      }
-      return '';
-    }
     default:
       return '';
   }
@@ -231,7 +223,17 @@ async function convertPageToMarkdown(page: DataSourceObjectResponse): Promise<Po
   const tags = (extractPropertyValue(props.Tags) || []) as string[];
   const description = (extractPropertyValue(props.Description) || '') as string;
   const published = extractPropertyValue(props.Published) as boolean;
-  const coverUrl = (extractPropertyValue(props.Cover) || '') as string;
+
+  // Get cover from page cover (banner), not from properties
+  const pageCover = page.cover as
+    | { type: 'external'; external: { url: string } }
+    | { type: 'file'; file: { url: string } }
+    | null;
+  const coverUrl = pageCover
+    ? pageCover.type === 'external'
+      ? pageCover.external.url
+      : pageCover.file.url
+    : '';
 
   const blocks = await getPageBlocks(page.id);
 
@@ -264,7 +266,7 @@ async function convertPageToMarkdown(page: DataSourceObjectResponse): Promise<Po
     const imageName = getImageNameFromUrl(url);
     if (imageName && existingImages.has(imageName)) {
       console.log(`  ⊙ Using existing image: ${imageName}`);
-      return `![${alt}](${existingImages.get(imageName)}-800.webp)`;
+      return `![${alt}](${existingImages.get(imageName)}-768.webp)`;
     }
     return match; // Keep original URL for new images
   });

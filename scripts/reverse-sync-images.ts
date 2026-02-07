@@ -49,16 +49,9 @@ async function reverseSyncImages(): Promise<void> {
       try {
         await notion.pages.update({
           page_id: pageId,
-          properties: {
-            Cover: {
-              files: [
-                {
-                  type: 'external',
-                  name: imageName,
-                  external: { url: externalUrl },
-                },
-              ],
-            },
+          cover: {
+            type: 'external',
+            external: { url: externalUrl },
           },
         });
         console.log(`  ✓ Updated cover: ${imageName}`);
@@ -69,7 +62,7 @@ async function reverseSyncImages(): Promise<void> {
 
     // Update inline images
     for (const { blockId, imageName } of postMappings.images) {
-      const externalUrl = `${SITE_URL}/images/posts/${slug}/${imageName}-800.webp`;
+      const externalUrl = `${SITE_URL}/images/posts/${slug}/${imageName}-768.webp`;
 
       try {
         await notion.blocks.update({

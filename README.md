@@ -9,7 +9,7 @@ Notion (CMS)
   ↓
 GitHub Actions (CI)
   - Sync content from Notion (every 3h)
-  - Download & optimize images (400, 800, 1200px WebP)
+  - Download & optimize images (320, 480, 768, 1200px WebP)
   - Generate Markdown + frontmatter
   ↓
 GitHub Repository (public)
@@ -54,9 +54,9 @@ npm install
    - Date (Date)
    - Tags (Multi-select)
    - Description (Text)
-   - Cover (Files & media)
-4. Share database with integration
-5. Get `DATABASE_ID` from database URL
+4. Add cover image using Notion's built-in page cover (banner)
+5. Share database with integration
+6. Get `DATABASE_ID` from database URL
 
 ### 3. Configure environment variables
 
@@ -120,7 +120,7 @@ npm run reverse-sync
 ## Image Pipeline
 
 1. **Sync**: Get image URLs from Notion
-2. **Optimize**: Download, resize (400/800/1200px), convert to WebP
+2. **Optimize**: Download, resize (320/480/768/1200px), convert to WebP
 3. **Store**: Save to `public/images/posts/{slug}/`
 4. **Update MD**: Replace URLs with local paths
 5. **Reverse sync** (optional): Update Notion with deployed URLs
@@ -128,8 +128,9 @@ npm run reverse-sync
 ### Image naming
 
 ```
-{image-name}-400.webp  # Mobile
-{image-name}-800.webp  # Content (inline images)
+{image-name}-320.webp  # Mobile 1x
+{image-name}-480.webp  # Mobile 2x
+{image-name}-768.webp  # Content (inline images)
 {image-name}-1200.webp # Hero (cover images, OG)
 ```
 

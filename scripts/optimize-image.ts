@@ -4,8 +4,8 @@ import path from 'path';
 import https from 'https';
 import http from 'http';
 
-const SIZES = [400, 800, 1200];
-const QUALITY = 80;
+const SIZES = [320, 480, 768, 1200];
+const QUALITY = 75;
 
 function downloadImage(url: string): Promise<Buffer> {
   return new Promise((resolve, reject) => {
@@ -46,14 +46,14 @@ async function cleanupUnusedImages(contentDir: string, publicImagesDir: string):
     const imageNames = new Set<string>();
 
     // Match inline images (any size)
-    const imageRefs = content.match(/\/images\/posts\/[^/]+\/[^/)]+-(400|800|1200)\.webp/g) || [];
+    const imageRefs = content.match(/\/images\/posts\/[^/]+\/[^/)]+-\d+\.webp/g) || [];
     for (const ref of imageRefs) {
-      const match = ref.match(/\/([^/]+)-(400|800|1200)\.webp$/);
+      const match = ref.match(/\/([^/]+)-\d+\.webp$/);
       if (match) imageNames.add(match[1]);
     }
 
     const coverMatch = content.match(
-      /^cover:\s*['"]?\/images\/posts\/[^/]+\/([^'"]+)-(400|800|1200)\.webp['"]?/m,
+      /^cover:\s*['"]?\/images\/posts\/[^/]+\/([^'"]+)-\d+\.webp['"]?/m,
     );
     if (coverMatch) {
       imageNames.add(coverMatch[1]);
@@ -84,7 +84,7 @@ async function cleanupUnusedImages(contentDir: string, publicImagesDir: string):
     const usedInPost = usedImages.get(dir) || new Set();
 
     for (const file of files) {
-      const match = file.match(/^(.+)-(400|800|1200)\.webp$/);
+      const match = file.match(/^(.+)-(\d+)\.webp$/);
       if (!match) {
         await fs.unlink(path.join(dirPath, file));
         console.log(`🗑 Deleted non-standard file: ${dir}/${file}`);
@@ -210,7 +210,7 @@ async function processMarkdownImages(): Promise<void> {
         console.log(`⊙ Skipped (already exists): ${slug}/${imageName}`);
         updatedContent = updatedContent.replace(
           fullMatch,
-          `![${alt}](/images/posts/${slug}/${imageName}-800.webp)`,
+          `![${alt}](/images/posts/${slug}/${imageName}-768.webp)`,
         );
         continue;
       }
@@ -226,7 +226,7 @@ async function processMarkdownImages(): Promise<void> {
 
       updatedContent = updatedContent.replace(
         fullMatch,
-        `![${alt}](/images/posts/${slug}/${imageName}-800.webp)`,
+        `![${alt}](/images/posts/${slug}/${imageName}-768.webp)`,
       );
     }
 

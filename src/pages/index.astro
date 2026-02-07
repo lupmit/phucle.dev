@@ -58,7 +58,7 @@ const posts = (await getCollection('posts'))
         <div class="space-y-1">
           {posts.map((post) => {
             const coverMatch = post.cover?.match(/^(.+)-(\d+)\.(\w+)$/);
-            const thumbSrc = coverMatch ? `${coverMatch[1]}-400.${coverMatch[3]}` : null;
+            const thumbSrc = coverMatch ? `${coverMatch[1]}-320.${coverMatch[3]}` : null;
             return (
               <a
                 href={`/${post.slug}`}
