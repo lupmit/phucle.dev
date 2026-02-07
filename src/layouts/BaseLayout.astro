@@ -145,7 +145,7 @@ const navLinks = [
               <a
                 href={link.href}
                 class:list={[
-                  'px-3 py-1.5 text-sm font-medium transition-colors',
+                  'flex items-center px-3 py-2 text-sm font-medium transition-colors',
                   Astro.url.pathname === link.href ||
                   (link.href !== '/' && Astro.url.pathname.startsWith(link.href))
                     ? 'text-gray-900 dark:text-gray-100'
