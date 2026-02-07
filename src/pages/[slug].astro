@@ -121,6 +121,7 @@ imageData.forEach((img, index) => {
   ogType="article"
   publishedTime={data.date.toISOString()}
   tags={data.tags}
+  preloadImage={coverData ? { src: coverData.src, srcset: coverData.srcset } : undefined}
 >
   <script
     type="application/ld+json"
@@ -182,7 +183,6 @@ imageData.forEach((img, index) => {
             width="800"
             height="420"
             fetchpriority="high"
-            decoding="async"
             class="aspect-[40/21] w-full object-cover"
           />
         </figure>

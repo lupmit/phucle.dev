@@ -11,6 +11,7 @@ const {
   publishedTime,
   tags = [],
   noindex = false,
+  preloadImage,
 } = Astro.props;
 
 const site = Astro.site ?? new URL(Astro.url.origin);
@@ -37,6 +38,19 @@ const navLinks = [
     <meta name="generator" content={Astro.generator} />
 
     <link rel="dns-prefetch" href="https://giscus.app" />
+
+    {
+      preloadImage && (
+        <link
+          rel="preload"
+          as="image"
+          href={preloadImage.src}
+          imagesrcset={preloadImage.srcset}
+          imagesizes="(max-width: 768px) calc(100vw - 48px), 720px"
+          type="image/webp"
+        />
+      )
+    }
 
     <title>{pageTitle}</title>
     <meta name="description" content={metaDescription} />
