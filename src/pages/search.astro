@@ -1,0 +1,125 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Tìm kiếm" description="Tìm kiếm bài viết trên phucle.dev" noindex={true}>
+  <div class="mb-8">
+    <h1 class="mb-6 text-3xl font-extrabold tracking-tight">Tìm kiếm</h1>
+    <div class="relative">
+      <svg
+        class="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"></path>
+      </svg>
+      <input
+        id="search-input"
+        type="text"
+        placeholder="Tìm theo nội dung, tiêu đề..."
+        autocomplete="off"
+        class="w-full rounded-xl border border-gray-200 bg-white py-3 pl-10 pr-4 text-gray-900 outline-none transition-colors placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus:border-blue-400"
+      />
+    </div>
+  </div>
+
+  <div id="search-results" class="space-y-1"></div>
+  <div id="no-results" class="hidden py-12 text-center text-gray-500 dark:text-gray-400">
+    Không tìm thấy bài viết nào.
+  </div>
+  <div id="initial-state" class="py-12 text-center text-gray-500 dark:text-gray-400">
+    Nhập từ khóa để tìm kiếm.
+  </div>
+</BaseLayout>
+
+<script is:inline>
+  var searchInput = document.getElementById('search-input');
+  var searchResults = document.getElementById('search-results');
+  var noResults = document.getElementById('no-results');
+  var initialState = document.getElementById('initial-state');
+  var pagefind;
+
+  async function loadPagefind() {
+    if (pagefind) return;
+    try {
+      pagefind = await import('/pagefind/pagefind.js');
+      await pagefind.init();
+    } catch (e) {
+      console.warn(
+        'Pagefind not available. Run "npm run build" first, then use "npm run preview".',
+      );
+      noResults.textContent = 'Search chưa sẵn sàng. Hãy chạy build trước khi dùng preview.';
+      noResults.classList.remove('hidden');
+      initialState.classList.add('hidden');
+      throw e;
+    }
+  }
+
+  var debounceTimer;
+
+  searchInput.addEventListener('input', function () {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(doSearch, 200);
+  });
+
+  async function doSearch() {
+    var query = searchInput.value.trim();
+
+    if (!query) {
+      searchResults.innerHTML = '';
+      noResults.classList.add('hidden');
+      initialState.classList.remove('hidden');
+      return;
+    }
+
+    await loadPagefind();
+    var search = await pagefind.search(query);
+    var results = await Promise.all(
+      search.results.slice(0, 10).map(function (r) {
+        return r.data();
+      }),
+    );
+
+    initialState.classList.add('hidden');
+
+    if (results.length === 0) {
+      searchResults.innerHTML = '';
+      noResults.classList.remove('hidden');
+      return;
+    }
+
+    noResults.classList.add('hidden');
+    searchResults.innerHTML = results
+      .map(function (result) {
+        return (
+          '<a href="' +
+          result.url +
+          '" class="group -mx-3 flex flex-col gap-2 rounded-xl px-3 py-4 transition-colors hover:bg-gray-50 dark:hover:bg-gray-900">' +
+          '<h3 class="font-semibold text-gray-900 group-hover:text-blue-600 dark:text-gray-100 dark:group-hover:text-blue-400">' +
+          (result.meta.title || 'Untitled') +
+          '</h3>' +
+          '<p class="line-clamp-2 text-sm text-gray-600 dark:text-gray-400">' +
+          result.excerpt +
+          '</p>' +
+          '</a>'
+        );
+      })
+      .join('');
+  }
+
+  searchInput.focus();
+</script>
+
+<style is:global>
+  #search-results mark {
+    background-color: rgb(59 130 246 / 0.2);
+    color: inherit;
+    border-radius: 2px;
+    padding: 0 2px;
+  }
+</style>

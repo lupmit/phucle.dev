@@ -1,0 +1,90 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import { getReadingTime } from '../../utils/reading-time';
+
+export async function getStaticPaths() {
+  const posts = (await getCollection('posts')).filter((post) => post.data.published);
+
+  const tags = new Set<string>();
+  posts.forEach((post) => {
+    (post.data.tags ?? []).forEach((tag: string) => tags.add(tag.toLowerCase()));
+  });
+
+  return [...tags].map((tag) => ({
+    params: { tag },
+    props: {
+      tag,
+      posts: posts
+        .filter((post) => (post.data.tags ?? []).some((t: string) => t.toLowerCase() === tag))
+        .map((post) => ({
+          slug: post.data.slug ?? post.slug,
+          title: post.data.title,
+          date: post.data.date,
+          description: post.data.description,
+          tags: post.data.tags ?? [],
+          readingTime: getReadingTime(post.body),
+          originalTag: (post.data.tags ?? []).find((t: string) => t.toLowerCase() === tag),
+        }))
+        .sort((a, b) => b.date.getTime() - a.date.getTime()),
+    },
+  }));
+}
+
+const { tag, posts } = Astro.props;
+const displayTag = posts[0]?.originalTag ?? tag;
+---
+
+<BaseLayout title={`Tag: ${displayTag}`} description={`Bài viết có tag "${displayTag}"`}>
+  <div class="mb-8">
+    <a
+      href="/tags"
+      class="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 transition-colors hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+    >
+      <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
+        ></path>
+      </svg>
+      Tất cả tags
+    </a>
+    <h1 class="text-3xl font-extrabold tracking-tight">
+      <span class="text-gray-400 dark:text-gray-500">#</span>{displayTag}
+    </h1>
+    <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">{posts.length} bài viết</p>
+  </div>
+
+  <div class="space-y-1">
+    {
+      posts.map((post) => (
+        <a
+          href={`/${post.slug}`}
+          class="group -mx-3 flex flex-col gap-1 rounded-xl px-3 py-4 transition-colors hover:bg-gray-50 dark:hover:bg-gray-900 sm:flex-row sm:items-baseline sm:gap-4"
+        >
+          <time
+            datetime={post.date.toISOString()}
+            class="shrink-0 text-sm tabular-nums text-gray-500"
+          >
+            {post.date.toLocaleDateString('vi-VN', {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+            })}
+          </time>
+          <div class="min-w-0 flex-1">
+            <h3 class="font-semibold text-gray-900 group-hover:text-blue-600 dark:text-gray-100 dark:group-hover:text-blue-400">
+              {post.title}
+            </h3>
+            {post.description && (
+              <p class="mt-1 line-clamp-2 text-sm text-gray-600 dark:text-gray-400">
+                {post.description}
+              </p>
+            )}
+            <span class="mt-1 text-xs text-gray-400 dark:text-gray-500">
+              {post.readingTime} phút đọc
+            </span>
+          </div>
+        </a>
+      ))
+    }
+  </div>
+</BaseLayout>

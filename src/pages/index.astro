@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
+import { getReadingTime } from '../utils/reading-time';
 
 const posts = (await getCollection('posts'))
   .filter((post) => post.data.published)
@@ -10,57 +11,111 @@ const posts = (await getCollection('posts'))
     date: post.data.date,
     description: post.data.description,
     tags: post.data.tags ?? [],
+    cover: post.data.cover,
+    readingTime: getReadingTime(post.body),
   }))
   .sort((a, b) => b.date.getTime() - a.date.getTime());
 ---
 
-<BaseLayout
-  title="phucle.dev - Blog công nghệ"
-  description="Chia sẻ kiến thức và kinh nghiệm lập trình"
->
-  <div class="space-y-8">
-    <div class="mb-12 text-center">
-      <h1 class="mb-4 text-4xl font-bold">Blog công nghệ</h1>
-      <p class="text-lg text-gray-600">
-        Chia sẻ những gì tôi học được, những thứ hay ho và hành trình với dòng mã
-      </p>
-    </div>
-
-    {
-      posts.length === 0 ? (
-        <div class="py-12 text-center">
-          <p class="text-gray-500">Chưa có bài viết nào. Hãy thêm bài viết đầu tiên từ Notion!</p>
-        </div>
-      ) : (
-        <div class="space-y-6">
-          {posts.map((post) => (
-            <article class="rounded-lg bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
-              <a href={`/posts/${post.slug}`} class="group block">
-                <h2 class="mb-2 text-2xl font-bold text-gray-900 group-hover:text-blue-600">
-                  {post.title}
-                </h2>
-                <time class="mb-3 block text-sm text-gray-500">
-                  {post.date.toLocaleDateString('vi-VN', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  })}
-                </time>
-                {post.description && <p class="mb-4 text-gray-700">{post.description}</p>}
-                {post.tags.length > 0 && (
-                  <div class="flex flex-wrap gap-2">
-                    {post.tags.map((tag: string) => (
-                      <span class="rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-700">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </a>
-            </article>
-          ))}
-        </div>
-      )
-    }
+<BaseLayout description="Blog công nghệ - Chia sẻ kiến thức và kinh nghiệm lập trình">
+  <script
+    type="application/ld+json"
+    set:html={JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: 'phucle.dev',
+      url: 'https://phucle.dev',
+      description: 'Blog công nghệ - Chia sẻ kiến thức và kinh nghiệm lập trình',
+      author: { '@type': 'Person', name: 'Phuc Le' },
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: 'https://phucle.dev/search?q={search_term_string}',
+        'query-input': 'required name=search_term_string',
+      },
+    })}
+  />
+  <!-- Hero -->
+  <div class="mb-12">
+    <h1 class="mb-3 text-4xl font-extrabold tracking-tight sm:text-5xl">
+      Xin chào, tôi là <span class="text-blue-600 dark:text-blue-400">Phuc</span>
+    </h1>
+    <p class="max-w-xl text-lg text-gray-600 dark:text-gray-400">
+      Chia sẻ những gì tôi học được, những thứ hay ho và hành trình với dòng mã.
+    </p>
   </div>
+
+  <!-- Posts -->
+  {
+    posts.length === 0 ? (
+      <div class="rounded-xl border border-dashed border-gray-300 py-16 text-center dark:border-gray-700">
+        <p class="text-gray-500 dark:text-gray-400">Chưa có bài viết nào.</p>
+      </div>
+    ) : (
+      <div class="space-y-6">
+        <h2 class="text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+          Bài viết
+        </h2>
+        <div class="space-y-1">
+          {posts.map((post) => {
+            const coverMatch = post.cover?.match(/^(.+)-(\d+)\.(\w+)$/);
+            const thumbSrc = coverMatch ? `${coverMatch[1]}-400.${coverMatch[3]}` : null;
+            return (
+              <a
+                href={`/${post.slug}`}
+                class="group -mx-3 flex gap-4 rounded-xl px-3 py-4 transition-colors hover:bg-gray-50 dark:hover:bg-gray-900"
+              >
+                {thumbSrc && (
+                  <img
+                    src={thumbSrc}
+                    alt={post.title}
+                    width="120"
+                    height="68"
+                    loading="lazy"
+                    decoding="async"
+                    class="hidden h-[68px] w-[120px] shrink-0 rounded-lg object-cover sm:block"
+                  />
+                )}
+                <div class="min-w-0 flex-1">
+                  <div class="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-4">
+                    <time
+                      datetime={post.date.toISOString()}
+                      class="shrink-0 text-sm tabular-nums text-gray-500 dark:text-gray-500"
+                    >
+                      {post.date.toLocaleDateString('vi-VN', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                      })}
+                    </time>
+                    <h3 class="font-semibold text-gray-900 group-hover:text-blue-600 dark:text-gray-100 dark:group-hover:text-blue-400">
+                      {post.title}
+                    </h3>
+                  </div>
+                  {post.description && (
+                    <p class="mt-1 line-clamp-2 text-sm text-gray-600 dark:text-gray-400">
+                      {post.description}
+                    </p>
+                  )}
+                  <div class="mt-2 flex items-center gap-3">
+                    <span class="text-xs text-gray-400 dark:text-gray-500">
+                      {post.readingTime} phút đọc
+                    </span>
+                    {post.tags.length > 0 && (
+                      <div class="flex gap-1.5">
+                        {post.tags.slice(0, 3).map((tag: string) => (
+                          <span class="rounded-md bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-400">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </a>
+            );
+          })}
+        </div>
+      </div>
+    )
+  }
 </BaseLayout>

@@ -6,9 +6,4 @@ export default defineConfig({
   output: 'static',
   integrations: [tailwind(), sitemap()],
   site: 'https://phucle.dev',
-  markdown: {
-    shikiConfig: {
-      theme: 'github-dark',
-    },
-  },
 });

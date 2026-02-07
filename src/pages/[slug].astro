@@ -1,0 +1,547 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import { marked } from 'marked';
+import { generateResponsiveImageHtml, type ImageInfo } from '../utils/responsive-image';
+import { getReadingTime } from '../utils/reading-time';
+import { getHighlighter } from '../utils/shiki';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts');
+
+  return posts
+    .filter((post) => post.data.published)
+    .map((post) => ({
+      params: { slug: post.slug },
+      props: { post },
+    }));
+}
+
+const { post } = Astro.props;
+const { data, body, slug } = post;
+const readingTime = getReadingTime(body);
+
+// Get all posts for "related posts"
+const allPosts = (await getCollection('posts')).filter((p) => p.data.published && p.slug !== slug);
+
+const relatedPosts = allPosts
+  .map((p) => ({
+    slug: p.data.slug ?? p.slug,
+    title: p.data.title,
+    date: p.data.date,
+    score: (data.tags ?? []).filter((t: string) => (p.data.tags ?? []).includes(t)).length,
+  }))
+  .filter((p) => p.score > 0)
+  .sort((a, b) => b.score - a.score || b.date.getTime() - a.date.getTime())
+  .slice(0, 3);
+
+// Initialize Shiki highlighter (cached across pages)
+const highlighter = await getHighlighter();
+
+// Cover image srcset helper
+function getCoverSrcset(cover: string) {
+  const match = cover.match(/^(.+)-(\d+)\.(\w+)$/);
+  if (!match) return null;
+  const [, base, , ext] = match;
+  return {
+    src: `${base}-800.${ext}`,
+    srcset: `${base}-400.${ext} 400w, ${base}-800.${ext} 800w, ${base}-1200.${ext} 1200w`,
+  };
+}
+const coverData = data.cover ? getCoverSrcset(data.cover) : null;
+
+// Extract headings for TOC
+const headings: { depth: number; text: string; id: string }[] = [];
+const renderer = new marked.Renderer();
+const imageData: ImageInfo[] = [];
+
+function escapeHtml(str: string) {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+renderer.heading = ({ text, depth }: { text: string; depth: number }) => {
+  const id = text
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/\s+/g, '-');
+  if (depth >= 2 && depth <= 3) {
+    headings.push({ depth, text, id });
+  }
+  return `<h${depth} id="${escapeHtml(id)}">${escapeHtml(text)}</h${depth}>`;
+};
+
+renderer.code = ({ text, lang }: { text: string; lang?: string }) => {
+  const language = lang || 'text';
+  const loadedLangs = highlighter.getLoadedLanguages();
+  let highlighted: string;
+
+  if (loadedLangs.includes(language)) {
+    highlighted = highlighter.codeToHtml(text, {
+      lang: language,
+      themes: { light: 'github-light', dark: 'github-dark' },
+    });
+  } else {
+    highlighted = highlighter.codeToHtml(text, {
+      lang: 'text',
+      themes: { light: 'github-light', dark: 'github-dark' },
+    });
+  }
+
+  const displayLang = language === 'text' ? '' : language;
+  return `<div class="code-block">${displayLang ? `<div class="code-lang">${displayLang}</div>` : ''}<button class="code-copy" aria-label="Copy code"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>${highlighted}</div>`;
+};
+
+renderer.image = ({ href, text }: { href: string; text: string }) => {
+  const match = href.match(/\/images\/posts\/([^/]+)\/(.+)-800\.webp/);
+  if (match) {
+    const [, postSlug, imageName] = match;
+    imageData.push({ postSlug, imageName, alt: text });
+    return `<!--IMG:${imageData.length - 1}-->`;
+  }
+  return `<img src="${escapeHtml(href)}" alt="${escapeHtml(text)}" loading="lazy" />`;
+};
+
+marked.setOptions({ renderer });
+let htmlContent = await marked(body);
+
+imageData.forEach((img, index) => {
+  const imgTag = generateResponsiveImageHtml(img, slug);
+  htmlContent = htmlContent.replace(`<!--IMG:${index}-->`, imgTag);
+});
+---
+
+<BaseLayout
+  title={data.title}
+  description={data.description}
+  image={data.cover || undefined}
+  ogType="article"
+  publishedTime={data.date.toISOString()}
+  tags={data.tags}
+>
+  <script
+    type="application/ld+json"
+    set:html={JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'BlogPosting',
+      headline: data.title,
+      description: data.description,
+      datePublished: data.date.toISOString(),
+      author: { '@type': 'Person', name: 'Phuc Le', url: 'https://phucle.dev/about' },
+      url: `https://phucle.dev/${slug}/`,
+      ...(data.cover ? { image: `https://phucle.dev${data.cover}` } : {}),
+      wordCount: body.trim().split(/\s+/).length,
+      keywords: (data.tags ?? []).join(', '),
+    })}
+  />
+  <article>
+    <!-- Header -->
+    <header class="mb-10">
+      <div class="mb-4 flex flex-wrap items-center gap-2">
+        {
+          data.tags &&
+            data.tags.length > 0 &&
+            data.tags.map((tag: string) => (
+              <a
+                href={`/tags/${tag.toLowerCase()}`}
+                class="rounded-md bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700 transition-colors hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
+              >
+                {tag}
+              </a>
+            ))
+        }
+      </div>
+      <h1 class="text-3xl font-extrabold tracking-tight sm:text-4xl">{data.title}</h1>
+      <div class="mt-4 flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
+        <time datetime={data.date.toISOString()}>
+          {
+            data.date.toLocaleDateString('vi-VN', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })
+          }
+        </time>
+        <span>&middot;</span>
+        <span>{readingTime} phút đọc</span>
+      </div>
+    </header>
+
+    <!-- Cover Image -->
+    {
+      coverData && (
+        <figure class="mb-10 overflow-hidden rounded-xl">
+          <img
+            src={coverData.src}
+            srcset={coverData.srcset}
+            sizes="(max-width: 768px) 100vw, 768px"
+            alt={data.title}
+            width="800"
+            height="420"
+            fetchpriority="high"
+            decoding="async"
+            class="aspect-[40/21] w-full object-cover"
+          />
+        </figure>
+      )
+    }
+
+    <!-- TOC: inline on mobile, sidebar on desktop -->
+    {
+      headings.length > 1 && (
+        <>
+          {/* Mobile/tablet: inline TOC */}
+          <nav class="mb-10 rounded-xl border border-gray-200 bg-gray-50 p-5 dark:border-gray-800 dark:bg-gray-900 xl:hidden">
+            <h2 class="mb-3 text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+              Mục lục
+            </h2>
+            <ul class="space-y-1.5">
+              {headings.map((h) => (
+                <li style={h.depth === 3 ? 'padding-left: 1rem;' : ''}>
+                  <a
+                    href={`#${h.id}`}
+                    class="text-sm text-gray-600 transition-colors hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400"
+                  >
+                    {h.text}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          {/* Desktop: sticky sidebar TOC */}
+          <nav id="toc-sidebar" class="toc-sidebar hidden xl:block">
+            <h2 class="mb-3 text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+              Mục lục
+            </h2>
+            <ul class="space-y-1">
+              {headings.map((h) => (
+                <li style={h.depth === 3 ? 'padding-left: 0.75rem;' : ''}>
+                  <a
+                    href={`#${h.id}`}
+                    data-toc-id={h.id}
+                    class="toc-link block text-[13px] leading-relaxed text-gray-500 transition-colors hover:text-gray-900 dark:text-gray-500 dark:hover:text-gray-200"
+                  >
+                    {h.text}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </>
+      )
+    }
+
+    <!-- Content -->
+    <div
+      class="prose prose-lg prose-gray max-w-none dark:prose-invert prose-headings:scroll-mt-20 prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline dark:prose-a:text-blue-400"
+      set:html={htmlContent}
+    />
+  </article>
+
+  <!-- Related Posts -->
+  {
+    relatedPosts.length > 0 && (
+      <section class="mt-14 border-t border-gray-200 pt-10 dark:border-gray-800">
+        <h2 class="mb-6 text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+          Bài viết liên quan
+        </h2>
+        <div class="space-y-1">
+          {relatedPosts.map((rp) => (
+            <a
+              href={`/${rp.slug}`}
+              class="group -mx-3 flex items-baseline gap-4 rounded-xl px-3 py-3 transition-colors hover:bg-gray-50 dark:hover:bg-gray-900"
+            >
+              <time
+                datetime={rp.date.toISOString()}
+                class="shrink-0 text-sm tabular-nums text-gray-500"
+              >
+                {rp.date.toLocaleDateString('vi-VN', {
+                  year: 'numeric',
+                  month: '2-digit',
+                  day: '2-digit',
+                })}
+              </time>
+              <span class="font-medium text-gray-900 group-hover:text-blue-600 dark:text-gray-100 dark:group-hover:text-blue-400">
+                {rp.title}
+              </span>
+            </a>
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  <!-- Giscus Comments -->
+  <section class="mt-14 border-t border-gray-200 pt-10 dark:border-gray-800">
+    <h2
+      class="mb-6 text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400"
+    >
+      Bình luận
+    </h2>
+    <div id="giscus-container"></div>
+    <script is:inline>
+      (function () {
+        var theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+        var s = document.createElement('script');
+        s.src = 'https://giscus.app/client.js';
+        s.setAttribute('data-repo', 'lupmit/phucle.dev');
+        s.setAttribute('data-repo-id', 'R_kgDORJeppA');
+        s.setAttribute('data-category', 'Comments');
+        s.setAttribute('data-category-id', 'DIC_kwDORJeppM4C2AFh');
+        s.setAttribute('data-mapping', 'pathname');
+        s.setAttribute('data-strict', '0');
+        s.setAttribute('data-reactions-enabled', '1');
+        s.setAttribute('data-emit-metadata', '0');
+        s.setAttribute('data-input-position', 'top');
+        s.setAttribute('data-theme', theme);
+        s.setAttribute('data-lang', 'vi');
+        s.setAttribute('data-loading', 'lazy');
+        s.setAttribute('crossorigin', 'anonymous');
+        s.async = true;
+        document.getElementById('giscus-container').appendChild(s);
+      })();
+    </script>
+  </section>
+
+  <!-- Back -->
+  <div class="mt-10">
+    <a
+      href="/"
+      class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 transition-colors hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+    >
+      <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
+        ></path>
+      </svg>
+      Về trang chủ
+    </a>
+  </div>
+</BaseLayout>
+
+<style is:global>
+  .prose img {
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  }
+
+  /* Inline code */
+  .prose code:not(pre code) {
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    padding: 0.15rem 0.4rem;
+    border-radius: 0.375rem;
+    font-size: 0.85em;
+    font-weight: 500;
+    word-break: break-word;
+  }
+
+  .dark .prose code:not(pre code) {
+    background: #1e293b;
+    border-color: #334155;
+  }
+
+  /* Code block container */
+  .code-block {
+    position: relative;
+    margin: 1.5rem 0;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+  }
+
+  .dark .code-block {
+    border-color: #1e293b;
+  }
+
+  /* Language label */
+  .code-lang {
+    position: absolute;
+    top: 0;
+    right: 3rem;
+    padding: 0.2rem 0.75rem;
+    font-size: 0.7rem;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748b;
+    background: #f1f5f9;
+    border-bottom-left-radius: 0.375rem;
+    border-bottom-right-radius: 0.375rem;
+    user-select: none;
+    z-index: 1;
+  }
+
+  .dark .code-lang {
+    color: #94a3b8;
+    background: #1e293b;
+  }
+
+  /* Copy button */
+  .code-copy {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    padding: 0.375rem;
+    border-radius: 0.375rem;
+    background: transparent;
+    color: #94a3b8;
+    border: none;
+    cursor: pointer;
+    opacity: 0;
+    transition:
+      opacity 0.15s,
+      background-color 0.15s,
+      color 0.15s;
+    z-index: 1;
+  }
+
+  .code-block:hover .code-copy {
+    opacity: 1;
+  }
+
+  .code-copy:hover {
+    background: #e2e8f0;
+    color: #475569;
+  }
+
+  .dark .code-copy:hover {
+    background: #334155;
+    color: #e2e8f0;
+  }
+
+  .code-copy.copied {
+    opacity: 1;
+    color: #22c55e;
+  }
+
+  /* Shiki pre/code styling */
+  .code-block pre {
+    margin: 0 !important;
+    padding: 1.25rem 1rem !important;
+    border-radius: 0 !important;
+    border: none !important;
+    font-size: 0.875rem !important;
+    line-height: 1.7 !important;
+    overflow-x: auto;
+    tab-size: 2;
+  }
+
+  .code-block pre code {
+    font-family:
+      'JetBrains Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: inherit;
+    background: none !important;
+    padding: 0 !important;
+    border: none !important;
+  }
+
+  /* Shiki dual theme: CSS variable approach */
+  .dark .shiki,
+  .dark .shiki span {
+    color: var(--shiki-dark) !important;
+    background-color: var(--shiki-dark-bg) !important;
+  }
+
+  .prose blockquote {
+    border-left: 4px solid #3b82f6;
+    padding-left: 1rem;
+    font-style: italic;
+  }
+
+  /* TOC sidebar */
+  .toc-sidebar {
+    position: fixed;
+    top: 5rem;
+    max-height: calc(100vh - 6rem);
+    overflow-y: auto;
+    width: 14rem;
+    padding-right: 1rem;
+  }
+
+  .toc-link.active {
+    color: #2563eb;
+    font-weight: 500;
+  }
+
+  .dark .toc-link.active {
+    color: #60a5fa;
+  }
+</style>
+
+<script>
+  // Sync Giscus theme with dark mode
+  function updateGiscusTheme() {
+    const isDark = document.documentElement.classList.contains('dark');
+    const iframe = document.querySelector<HTMLIFrameElement>('iframe.giscus-frame');
+    if (iframe) {
+      iframe.contentWindow?.postMessage(
+        { giscus: { setConfig: { theme: isDark ? 'dark' : 'light' } } },
+        'https://giscus.app',
+      );
+    }
+  }
+
+  const observer = new MutationObserver(() => updateGiscusTheme());
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+
+  // Copy code button
+  document.querySelectorAll('.code-copy').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const block = btn.closest('.code-block');
+      const code = block?.querySelector('pre code')?.textContent ?? '';
+      await navigator.clipboard.writeText(code);
+      btn.classList.add('copied');
+      btn.innerHTML =
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>';
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        btn.innerHTML =
+          '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>';
+      }, 2000);
+    });
+  });
+
+  // TOC sidebar positioning & active heading
+  const tocSidebar = document.getElementById('toc-sidebar');
+  if (tocSidebar) {
+    const positionToc = () => {
+      const main = document.querySelector('main');
+      if (!main) return;
+      const rect = main.getBoundingClientRect();
+      const rightEdge = rect.right;
+      const gap = 32;
+      const available = window.innerWidth - rightEdge;
+      if (available > 240) {
+        tocSidebar.style.left = `${rightEdge + gap}px`;
+      }
+    };
+    positionToc();
+    window.addEventListener('resize', positionToc, { passive: true });
+
+    // Highlight active heading on scroll
+    const tocLinks = tocSidebar.querySelectorAll<HTMLAnchorElement>('.toc-link');
+    const headingIds = Array.from(tocLinks).map((l) => l.dataset.tocId!);
+    const headingEls = headingIds
+      .map((id) => document.getElementById(id))
+      .filter(Boolean) as HTMLElement[];
+
+    const updateActive = () => {
+      let activeId = headingIds[0];
+      for (const el of headingEls) {
+        if (el.getBoundingClientRect().top <= 100) {
+          activeId = el.id;
+        }
+      }
+      tocLinks.forEach((link) => {
+        link.classList.toggle('active', link.dataset.tocId === activeId);
+      });
+    };
+    window.addEventListener('scroll', updateActive, { passive: true });
+    updateActive();
+  }
+</script>
