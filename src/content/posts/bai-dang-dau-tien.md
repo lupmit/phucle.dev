@@ -21,6 +21,8 @@ console.log(x);
 
 Bạn có khoẻ hân!
 
+### Điều gì đến rồi sẽ đến
+
 ![image](/images/posts/bai-dang-dau-tien/pexels-jess-vide-4322442-768.webp)
 
 Damn.
