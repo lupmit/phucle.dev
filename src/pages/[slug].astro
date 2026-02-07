@@ -177,7 +177,7 @@ imageData.forEach((img, index) => {
           <img
             src={coverData.src}
             srcset={coverData.srcset}
-            sizes="(max-width: 768px) 100vw, 768px"
+            sizes="(max-width: 768px) calc(100vw - 48px), 720px"
             alt={data.title}
             width="800"
             height="420"
@@ -368,7 +368,7 @@ imageData.forEach((img, index) => {
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: #64748b;
+    color: #475569;
     background: #f1f5f9;
     border-bottom-left-radius: 0.375rem;
     border-bottom-right-radius: 0.375rem;

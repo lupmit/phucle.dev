@@ -13,7 +13,7 @@ export function generateResponsiveImageHtml(img: ImageInfo, fallbackSlug: string
   return `<img
     src="/images/posts/${resolvedSlug}/${img.imageName}-800.webp"
     srcset="${srcset}"
-    sizes="(max-width: 768px) 90vw, 800px"
+    sizes="(max-width: 768px) calc(100vw - 48px), 720px"
     alt="${img.alt}"
     loading="lazy"
     decoding="async"
