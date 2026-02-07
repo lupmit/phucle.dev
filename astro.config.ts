@@ -6,4 +6,7 @@ export default defineConfig({
   output: 'static',
   integrations: [tailwind(), sitemap()],
   site: 'https://phucle.dev',
+  build: {
+    inlineStylesheets: 'always',
+  },
 });
