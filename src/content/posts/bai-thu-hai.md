@@ -10,4 +10,4 @@ cover: '/images/posts/bai-thu-hai/gradients_3-1200.webp'
 
 bạn ăn cơm chưa >>>
 
-![image](/images/posts/bai-thu-hai/PIA09071orig-768.webp)
+![image](/images/posts/bai-thu-hai/pexels-nanamusic-31566994-768.webp)
