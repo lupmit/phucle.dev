@@ -10,15 +10,4 @@ export default defineConfig({
     inlineStylesheets: 'always',
   },
   compressHTML: true,
-  vite: {
-    build: {
-      minify: 'terser',
-      terserOptions: {
-        compress: {
-          drop_console: true,
-          pure_funcs: ['console.log', 'console.info'],
-        },
-      },
-    },
-  },
 });
