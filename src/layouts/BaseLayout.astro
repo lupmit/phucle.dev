@@ -38,9 +38,11 @@ const navLinks = [
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48 64x64 128x128 256x256" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
     <meta name="generator" content={Astro.generator} />
 
-    <link rel="dns-prefetch" href="https://giscus.app" />
+    <link rel="preconnect" href="https://giscus.app" crossorigin />
 
     {
       preloadImage && (
@@ -78,6 +80,7 @@ const navLinks = [
     <meta name="twitter:title" content={pageTitle} />
     <meta name="twitter:description" content={metaDescription} />
     <meta name="twitter:image" content={ogImageUrl} />
+    <meta name="author" content="Phuc Le" />
 
     {publishedTime && <meta property="article:published_time" content={publishedTime} />}
     {ogType === 'article' && <meta property="article:author" content="https://phucle.dev/about" />}
@@ -105,8 +108,15 @@ const navLinks = [
       class="sticky top-0 z-50 border-b border-gray-200 bg-white/80 backdrop-blur-lg dark:border-gray-800 dark:bg-gray-950/80"
     >
       <nav class="mx-auto flex max-w-3xl items-center justify-between px-6 py-4">
-        <a href="/" class="text-xl font-bold tracking-tight text-gray-900 dark:text-white">
-          phucle<span class="text-blue-600 dark:text-blue-400">.dev</span>
+        <a href="/" class="flex items-center">
+          <img
+            src="/logo.webp"
+            srcset="/logo.webp 1x, /logo@2x.webp 2x"
+            alt="phucle.dev"
+            width="200"
+            height="50"
+            class="h-8 w-auto"
+          />
         </a>
 
         <!-- Desktop nav -->
@@ -257,9 +267,9 @@ const navLinks = [
               RSS
             </a>
             <a
-              href="https://github.com"
+              href="https://github.com/lupmit"
               target="_blank"
-              rel="noopener noreferrer"
+              rel="noopener noreferrer me"
               aria-label="GitHub"
               class="text-gray-500 transition-colors hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
             >
