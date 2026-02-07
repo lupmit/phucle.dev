@@ -17,7 +17,7 @@ const posts = (await getCollection('posts'))
   .sort((a, b) => b.date.getTime() - a.date.getTime());
 ---
 
-<BaseLayout description="Blog công nghệ - Chia sẻ kiến thức và kinh nghiệm lập trình">
+<BaseLayout description="Tò mò về công nghệ, viết lại những gì khám phá được">
   <script
     type="application/ld+json"
     set:html={JSON.stringify({
@@ -25,7 +25,7 @@ const posts = (await getCollection('posts'))
       '@type': 'WebSite',
       name: 'phucle.dev',
       url: 'https://phucle.dev',
-      description: 'Blog công nghệ - Chia sẻ kiến thức và kinh nghiệm lập trình',
+      description: 'Tò mò về công nghệ, viết lại những gì khám phá được',
       author: { '@type': 'Person', name: 'Phuc Le' },
       potentialAction: {
         '@type': 'SearchAction',
@@ -40,7 +40,7 @@ const posts = (await getCollection('posts'))
       Xin chào, tôi là <span class="text-blue-600 dark:text-blue-400">Phuc</span>
     </h1>
     <p class="max-w-xl text-lg text-gray-600 dark:text-gray-400">
-      Chia sẻ những gì tôi học được, những thứ hay ho và hành trình với dòng mã.
+      Tò mò về công nghệ, viết lại những gì khám phá được.
     </p>
   </div>
 

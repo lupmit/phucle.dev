@@ -21,7 +21,8 @@ const canonicalUrl = new URL(Astro.url.pathname, site).toString();
 const pageTitle = title ? `${title} | phucle.dev` : 'phucle.dev';
 const metaDescription =
   description ?? 'Blog công nghệ - Chia sẻ kiến thức và kinh nghiệm lập trình';
-const ogImageUrl = new URL(image ?? '/og-default.svg', site).toString();
+const ogImageUrl = new URL(image ?? '/og-default.webp', site).toString();
+const ogImageAlt = title ?? 'phucle.dev';
 
 const navLinks = [
   { href: '/', label: 'Blog' },
@@ -68,6 +69,8 @@ const navLinks = [
     <meta property="og:site_name" content="phucle.dev" />
     <meta property="og:locale" content="vi_VN" />
     <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:alt" content={ogImageAlt} />
+    <meta property="og:image:type" content="image/webp" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
 
@@ -77,6 +80,7 @@ const navLinks = [
     <meta name="twitter:image" content={ogImageUrl} />
 
     {publishedTime && <meta property="article:published_time" content={publishedTime} />}
+    {ogType === 'article' && <meta property="article:author" content="https://phucle.dev/about" />}
     {tags.map((tag: string) => <meta property="article:tag" content={tag} />)}
 
     <link rel="sitemap" href="/sitemap-index.xml" />
