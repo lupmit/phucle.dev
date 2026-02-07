@@ -12,7 +12,6 @@ export default defineConfig({
   compressHTML: true,
   vite: {
     build: {
-      cssMinify: 'lightningcss',
       minify: 'terser',
       terserOptions: {
         compress: {
