@@ -90,8 +90,10 @@ function getImageNameFromUrl(imageUrl: string): string {
     const basename = path.basename(pathname);
     const ext = path.extname(basename);
     let name = basename.replace(ext, '');
-    // Remove size suffix if present (e.g., image-768 → image)
-    name = name.replace(/-\d+$/, '');
+    // Only strip size suffix if URL is from our site (already optimized)
+    if (imageUrl.includes('/images/posts/')) {
+      name = name.replace(/-\d+$/, '');
+    }
     return name;
   } catch {
     return '';
@@ -237,13 +239,13 @@ async function convertPageToMarkdown(page: DataSourceObjectResponse): Promise<Po
 
   const blocks = await getPageBlocks(page.id);
 
-  // Collect image mappings for reverse sync
+  // Collect image mappings for reverse sync (only for images not already on our site)
   const imageMappings: ImageMapping[] = [];
   for (const block of blocks) {
     if (block.type === 'image') {
       const content = block.image as { file?: { url: string }; external?: { url: string } };
       const imageUrl = content.file?.url || content.external?.url;
-      if (imageUrl) {
+      if (imageUrl && !imageUrl.includes('/images/posts/')) {
         const imageName = getImageNameFromUrl(imageUrl);
         if (imageName) {
           imageMappings.push({
