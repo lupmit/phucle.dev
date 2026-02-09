@@ -322,7 +322,6 @@ imageData.forEach((img, index) => {
       <div id="giscus-container"></div>
       <script is:inline>
         (function () {
-          var theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
           var s = document.createElement('script');
           s.src = 'https://giscus.app/client.js';
           s.setAttribute('data-repo', 'lupmit/phucle.dev');
@@ -334,12 +333,28 @@ imageData.forEach((img, index) => {
           s.setAttribute('data-reactions-enabled', '1');
           s.setAttribute('data-emit-metadata', '0');
           s.setAttribute('data-input-position', 'top');
-          s.setAttribute('data-theme', theme);
+          s.setAttribute('data-theme', 'https://phucle.dev/giscus-custom.css');
           s.setAttribute('data-lang', 'en');
           s.setAttribute('data-loading', 'lazy');
           s.setAttribute('crossorigin', 'anonymous');
           s.async = true;
           document.getElementById('giscus-container').appendChild(s);
+
+          // Update theme when dark mode toggles
+          var observer = new MutationObserver(function (mutations) {
+            mutations.forEach(function (mutation) {
+              if (mutation.attributeName === 'class') {
+                var iframe = document.querySelector('iframe.giscus-frame');
+                if (iframe) {
+                  iframe.contentWindow.postMessage(
+                    { giscus: { setConfig: { theme: 'https://phucle.dev/giscus-custom.css' } } },
+                    'https://giscus.app',
+                  );
+                }
+              }
+            });
+          });
+          observer.observe(document.documentElement, { attributes: true });
         })();
       </script>
     </section>
