@@ -16,13 +16,13 @@ const tags = Object.entries(tagCounts)
   .map(([tag, count]) => ({ tag, count }));
 ---
 
-<BaseLayout title="Tags" description="Tất cả tags trên phucle.dev">
+<BaseLayout title="Tags" description="All tags on phucle.dev">
   <h1 class="mb-10 text-3xl font-medium tracking-tighter text-gray-900 dark:text-gray-100">Tags</h1>
 
   {
     tags.length === 0 ? (
       <div class="rounded-lg border border-dashed border-gray-300 py-16 text-center dark:border-gray-700">
-        <p class="text-sm text-gray-500 dark:text-gray-500">Chưa có tag nào.</p>
+        <p class="text-sm text-gray-500 dark:text-gray-500">No tags yet.</p>
       </div>
     ) : (
       <div class="flex flex-wrap gap-2">

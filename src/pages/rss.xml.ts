@@ -9,7 +9,7 @@ export async function GET(context: APIContext) {
 
   return rss({
     title: 'phucle.dev',
-    description: 'Blog công nghệ - Chia sẻ kiến thức và kinh nghiệm lập trình',
+    description: 'Tech blog - Sharing knowledge and programming experience',
     site: context.site!,
     items: posts.map((post) => ({
       title: post.data.title,

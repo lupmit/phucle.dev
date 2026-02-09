@@ -2,10 +2,10 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 
-<BaseLayout title="Tìm kiếm" description="Tìm kiếm bài viết trên phucle.dev" noindex={true}>
+<BaseLayout title="Search" description="Search posts on phucle.dev" noindex={true}>
   <div class="mb-10">
     <h1 class="mb-6 text-3xl font-medium tracking-tighter text-gray-900 dark:text-gray-100">
-      Tìm kiếm
+      Search
     </h1>
     <div class="relative">
       <svg
@@ -23,7 +23,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <input
         id="search-input"
         type="text"
-        placeholder="Tìm theo nội dung, tiêu đề..."
+        placeholder="Search by content, title..."
         autocomplete="off"
         class="w-full rounded border border-gray-200 bg-white py-2 pl-10 pr-4 text-sm text-gray-900 outline-none transition-colors placeholder:text-gray-400 focus:border-gray-400 dark:border-gray-800 dark:bg-black dark:text-gray-100 dark:placeholder:text-gray-600 dark:focus:border-gray-600"
       />
@@ -32,10 +32,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
   <div id="search-results"></div>
   <div id="no-results" class="hidden py-12 text-center text-sm text-gray-500 dark:text-gray-500">
-    Không tìm thấy bài viết nào.
+    No posts found.
   </div>
   <div id="initial-state" class="py-12 text-center text-sm text-gray-500 dark:text-gray-500">
-    Nhập từ khóa để tìm kiếm.
+    Enter keywords to search.
   </div>
 </BaseLayout>
 
@@ -55,7 +55,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       console.warn(
         'Pagefind not available. Run "npm run build" first, then use "npm run preview".',
       );
-      noResults.textContent = 'Search chưa sẵn sàng. Hãy chạy build trước khi dùng preview.';
+      noResults.textContent = 'Search not ready. Run build before using preview.';
       noResults.classList.remove('hidden');
       initialState.classList.add('hidden');
       throw e;

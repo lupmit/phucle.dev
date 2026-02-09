@@ -20,7 +20,7 @@ const posts = (await getCollection('posts'))
 const allTags = Array.from(new Set(posts.flatMap((post) => post.tags))).sort();
 ---
 
-<BaseLayout description="Tò mò về công nghệ, viết lại những gì khám phá được">
+<BaseLayout description="Curious about technology, writing down what I discover">
   <script
     type="application/ld+json"
     set:html={JSON.stringify({
@@ -28,7 +28,7 @@ const allTags = Array.from(new Set(posts.flatMap((post) => post.tags))).sort();
       '@type': 'WebSite',
       name: 'phucle.dev',
       url: 'https://phucle.dev',
-      description: 'Tò mò về công nghệ, viết lại những gì khám phá được',
+      description: 'Curious about technology, writing down what I discover',
       author: { '@type': 'Person', name: 'Phuc Le' },
       potentialAction: {
         '@type': 'SearchAction',
@@ -124,7 +124,7 @@ const allTags = Array.from(new Set(posts.flatMap((post) => post.tags))).sort();
                 datetime={post.date.toISOString()}
                 class="mb-2 text-xs text-gray-500 dark:text-gray-500"
               >
-                {post.date.toLocaleDateString('vi-VN', {
+                {post.date.toLocaleDateString('en-US', {
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric',
@@ -140,7 +140,7 @@ const allTags = Array.from(new Set(posts.flatMap((post) => post.tags))).sort();
               )}
               <div class="mt-auto flex items-center gap-2">
                 <span class="text-xs text-gray-500 dark:text-gray-500">
-                  {post.readingTime} phút đọc
+                  {post.readingTime} min read
                 </span>
                 {post.tags.length > 0 && (
                   <div class="flex gap-1.5">

@@ -1,13 +1,11 @@
 ---
 import '../styles/global.css';
-import '../styles/fonts.css';
-import '@fontsource/jetbrains-mono/latin-400.css';
-import '@fontsource/jetbrains-mono/vietnamese-400.css';
-import '@fontsource/jetbrains-mono/latin-500.css';
-import '@fontsource/jetbrains-mono/vietnamese-500.css';
-
-import interLatin from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
-import interViet from '@fontsource-variable/inter/files/inter-vietnamese-wght-normal.woff2?url';
+import '@fontsource/be-vietnam-pro/400.css';
+import '@fontsource/be-vietnam-pro/500.css';
+import '@fontsource/be-vietnam-pro/600.css';
+import '@fontsource/be-vietnam-pro/700.css';
+import '@fontsource/jetbrains-mono/400.css';
+import '@fontsource/jetbrains-mono/500.css';
 
 const {
   title,
@@ -23,8 +21,7 @@ const {
 const site = Astro.site ?? new URL(Astro.url.origin);
 const canonicalUrl = new URL(Astro.url.pathname, site).toString();
 const pageTitle = title ? `${title} | phucle.dev` : 'phucle.dev';
-const metaDescription =
-  description ?? 'Blog công nghệ - Chia sẻ kiến thức và kinh nghiệm lập trình';
+const metaDescription = description ?? 'Tech blog - Sharing knowledge and programming experience';
 const ogImageUrl = new URL(image ?? '/og-default.webp', site).toString();
 const ogImageAlt = title ?? 'phucle.dev';
 
@@ -35,7 +32,7 @@ const navLinks = [
 ---
 
 <!doctype html>
-<html lang="vi" class="scroll-smooth">
+<html lang="en" class="scroll-smooth">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
@@ -54,9 +51,6 @@ const navLinks = [
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
     <meta name="generator" content={Astro.generator} />
-
-    <link rel="preload" as="font" type="font/woff2" href={interLatin} crossorigin />
-    <link rel="preload" as="font" type="font/woff2" href={interViet} crossorigin />
 
     {
       preloadImage && (
@@ -115,7 +109,7 @@ const navLinks = [
     class="min-h-screen bg-white font-sans text-gray-700 antialiased dark:bg-black dark:text-gray-300"
   >
     <header
-      class="sticky top-0 z-50 border-b border-gray-200 bg-white/80 backdrop-blur-lg dark:border-gray-800 dark:bg-black/80"
+      class="sticky top-0 z-50 border-b border-gray-200 bg-white backdrop-blur-lg dark:border-gray-800 dark:bg-black"
     >
       <nav class="mx-auto flex h-16 max-w-5xl items-center justify-between px-4 md:px-6">
         <a href="/" class="flex items-center">

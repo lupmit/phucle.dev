@@ -131,7 +131,7 @@ imageData.forEach((img, index) => {
         '@context': 'https://schema.org',
         '@type': 'BreadcrumbList',
         itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Trang chủ', item: 'https://phucle.dev/' },
+          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://phucle.dev/' },
           {
             '@type': 'ListItem',
             position: 2,
@@ -179,14 +179,14 @@ imageData.forEach((img, index) => {
               </h1>
               <div class="flex items-center gap-2 text-xs text-white/90 md:text-sm">
                 <time datetime={data.date.toISOString()}>
-                  {data.date.toLocaleDateString('vi-VN', {
+                  {data.date.toLocaleDateString('en-US', {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric',
                   })}
                 </time>
                 <span>&middot;</span>
-                <span>{readingTime} phút đọc</span>
+                <span>{readingTime} min read</span>
               </div>
             </div>
           </figure>
@@ -217,7 +217,7 @@ imageData.forEach((img, index) => {
             headings.length > 1 && (
               <nav class="mb-6 rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-800 dark:bg-gray-900 md:mb-8 md:p-4 lg:hidden">
                 <h2 class="mb-2 text-xs font-medium text-gray-900 dark:text-gray-100 md:text-sm">
-                  Mục lục
+                  Table of Contents
                 </h2>
                 <ul class="space-y-1 md:space-y-1.5">
                   {headings.map((h) => (
@@ -245,7 +245,9 @@ imageData.forEach((img, index) => {
           headings.length > 1 && (
             <aside class="hidden lg:block">
               <nav class="sticky top-20">
-                <h2 class="mb-3 text-sm font-medium text-gray-900 dark:text-gray-100">Mục lục</h2>
+                <h2 class="mb-3 text-sm font-medium text-gray-900 dark:text-gray-100">
+                  Table of Contents
+                </h2>
                 <ul class="space-y-1.5">
                   {headings.map((h) => (
                     <li class={h.depth === 2 ? '' : 'ml-3'}>
@@ -269,9 +271,7 @@ imageData.forEach((img, index) => {
     {
       relatedPosts.length > 0 && (
         <section class="mt-16 border-t border-gray-200 pt-12 dark:border-gray-800">
-          <h2 class="mb-6 text-sm font-medium text-gray-500 dark:text-gray-500">
-            Bài viết liên quan
-          </h2>
+          <h2 class="mb-6 text-sm font-medium text-gray-500 dark:text-gray-500">Related Posts</h2>
           <div class="grid gap-3 sm:grid-cols-2">
             {relatedPosts.map((rp) => {
               const coverMatch = rp.cover?.match(/^(.+)-(\d+)\.(\w+)$/);
@@ -302,7 +302,7 @@ imageData.forEach((img, index) => {
                       datetime={rp.date.toISOString()}
                       class="text-xs text-gray-500 dark:text-gray-500"
                     >
-                      {rp.date.toLocaleDateString('vi-VN', {
+                      {rp.date.toLocaleDateString('en-US', {
                         year: 'numeric',
                         month: 'long',
                         day: 'numeric',
@@ -318,7 +318,7 @@ imageData.forEach((img, index) => {
     }
 
     <section class="mt-16 border-t border-gray-200 pt-12 dark:border-gray-800">
-      <h2 class="mb-6 text-sm font-medium text-gray-500 dark:text-gray-500">Bình luận</h2>
+      <h2 class="mb-6 text-sm font-medium text-gray-500 dark:text-gray-500">Comments</h2>
       <div id="giscus-container"></div>
       <script is:inline>
         (function () {
@@ -335,7 +335,7 @@ imageData.forEach((img, index) => {
           s.setAttribute('data-emit-metadata', '0');
           s.setAttribute('data-input-position', 'top');
           s.setAttribute('data-theme', theme);
-          s.setAttribute('data-lang', 'vi');
+          s.setAttribute('data-lang', 'en');
           s.setAttribute('data-loading', 'lazy');
           s.setAttribute('crossorigin', 'anonymous');
           s.async = true;
@@ -361,7 +361,7 @@ imageData.forEach((img, index) => {
             stroke-linejoin="round"
             d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"></path>
         </svg>
-        Về trang chủ
+        Back to home
       </a>
     </div>
   </div>
