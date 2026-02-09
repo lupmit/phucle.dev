@@ -36,8 +36,6 @@ const navLinks = [
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
 
     <link
       rel="icon"
@@ -334,16 +332,13 @@ const navLinks = [
     <script>
       function updateThemeColor() {
         const isDark = document.documentElement.classList.contains('dark');
-        const themeColor = isDark ? '#0a0a0a' : '#ffffff';
-        let metaTag = document.querySelector('meta[name="theme-color"]') as HTMLMetaElement | null;
+        const themeColor = isDark ? '#000000' : '#ffffff';
+        document.querySelectorAll('meta[name="theme-color"]').forEach((tag) => tag.remove());
 
-        if (!metaTag) {
-          metaTag = document.createElement('meta');
-          metaTag.name = 'theme-color';
-          document.head.appendChild(metaTag);
-        }
-
-        metaTag.setAttribute('content', themeColor);
+        const metaTag = document.createElement('meta');
+        metaTag.name = 'theme-color';
+        metaTag.content = themeColor;
+        document.head.appendChild(metaTag);
       }
 
       function toggleTheme() {
