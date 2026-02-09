@@ -49,9 +49,75 @@ export default {
             '--tw-prose-bold': theme('colors.gray.900'),
             '--tw-prose-code': theme('colors.gray.900'),
             '--tw-prose-pre-bg': theme('colors.gray.50'),
-            fontSize: '1rem',
-            lineHeight: '1.6',
+            fontSize: '1rem !important', // 16px - mobile base
+            lineHeight: '1.7 !important',
             maxWidth: 'none',
+            'h1, h2, h3, h4, h5, h6': {
+              fontWeight: '600 !important',
+              letterSpacing: '-0.02em',
+            },
+            h1: {
+              fontSize: '1.5rem !important', // 24px - smaller than page title (28px)
+              lineHeight: '1.3 !important',
+              marginTop: '0 !important',
+              marginBottom: '0.8em !important',
+            },
+            h2: {
+              fontSize: '1.25rem !important', // 20px
+              lineHeight: '1.4 !important',
+              marginTop: '2em !important',
+              marginBottom: '0.75em !important',
+            },
+            h3: {
+              fontSize: '1.125rem !important', // 18px
+              lineHeight: '1.5 !important',
+              marginTop: '1.6em !important',
+              marginBottom: '0.6em !important',
+            },
+            h4: {
+              fontSize: '1rem !important', // 16px
+              lineHeight: '1.5 !important',
+              marginTop: '1.5em !important',
+              marginBottom: '0.5em !important',
+            },
+            p: {
+              marginTop: '1.25em !important',
+              marginBottom: '1.25em !important',
+            },
+            li: {
+              marginTop: '0.5em !important',
+              marginBottom: '0.5em !important',
+            },
+            'ul, ol': {
+              marginTop: '1.25em !important',
+              marginBottom: '1.25em !important',
+            },
+          },
+        },
+        lg: {
+          css: {
+            fontSize: '1.125rem !important', // 18px for desktop
+            lineHeight: '1.7 !important',
+            h1: {
+              fontSize: '2rem !important', // 32px for desktop - smaller than title (40px)
+              lineHeight: '1.3 !important',
+            },
+            h2: {
+              fontSize: '1.625rem !important', // 26px
+              lineHeight: '1.4 !important',
+              marginTop: '1.7777778em !important',
+              marginBottom: '0.8888889em !important',
+            },
+            h3: {
+              fontSize: '1.375rem !important', // 22px
+              lineHeight: '1.45 !important',
+              marginTop: '1.5555556em !important',
+              marginBottom: '0.6666667em !important',
+            },
+            h4: {
+              fontSize: '1.125rem !important', // 18px
+              lineHeight: '1.5 !important',
+            },
           },
         },
         invert: {

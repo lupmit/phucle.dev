@@ -174,8 +174,10 @@ imageData.forEach((img, index) => {
             />
             <div class="absolute inset-0 bg-black/60" />
             <div class="absolute inset-0 flex flex-col items-center justify-center px-6 text-center md:px-8">
-              <h1 class="mb-3 font-medium tracking-tighter text-white">{data.title}</h1>
-              <div class="flex items-center gap-2 text-xs text-white/90 md:text-sm">
+              <h1 class="mb-3 text-[1.75rem] font-semibold leading-tight tracking-tighter text-white sm:text-3xl md:text-[2.5rem] md:leading-tight">
+                {data.title}
+              </h1>
+              <div class="flex items-center gap-2 text-sm text-white/90 md:text-[0.9375rem]">
                 <time datetime={data.date.toISOString()}>
                   {data.date.toLocaleDateString('en-US', {
                     year: 'numeric',
@@ -191,19 +193,19 @@ imageData.forEach((img, index) => {
         </header>
       ) : (
         <header class="mb-8 md:mb-12">
-          <h1 class="mb-3 text-2xl font-medium tracking-tighter text-gray-900 dark:text-gray-100 md:mb-4 md:text-3xl">
+          <h1 class="mb-3 text-[1.75rem] font-semibold leading-tight tracking-tighter text-gray-900 dark:text-gray-100 sm:text-3xl md:mb-4 md:text-[2.5rem] md:leading-tight">
             {data.title}
           </h1>
-          <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-500 md:text-sm">
+          <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-500 md:text-[0.9375rem]">
             <time datetime={data.date.toISOString()}>
-              {data.date.toLocaleDateString('vi-VN', {
+              {data.date.toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric',
               })}
             </time>
             <span>&middot;</span>
-            <span>{readingTime} phút đọc</span>
+            <span>{readingTime} min read</span>
           </div>
         </header>
       )
@@ -214,7 +216,7 @@ imageData.forEach((img, index) => {
           {
             headings.length > 1 && (
               <nav class="mb-6 rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-800 dark:bg-gray-900 md:mb-8 md:p-4 lg:hidden">
-                <h2 class="mb-2 text-xs font-medium text-gray-900 dark:text-gray-100 md:text-sm">
+                <h2 class="mb-2 text-[0.9375rem] font-semibold text-gray-900 dark:text-gray-100">
                   Table of Contents
                 </h2>
                 <ul class="space-y-1 md:space-y-1.5">
@@ -222,7 +224,7 @@ imageData.forEach((img, index) => {
                     <li class={h.depth === 2 ? '' : 'ml-3'}>
                       <a
                         href={`#${h.id}`}
-                        class={`'text-gray-600 dark:hover:text-gray-100' } block text-xs leading-relaxed transition-colors hover:text-gray-900 dark:text-gray-400 md:text-sm`}
+                        class={`'text-gray-600 dark:hover:text-gray-100' } block text-sm font-semibold leading-relaxed transition-colors hover:text-gray-900 dark:text-gray-400`}
                       >
                         {h.text}
                       </a>
@@ -234,7 +236,7 @@ imageData.forEach((img, index) => {
           }
 
           <div
-            class="prose max-w-none dark:prose-invert prose-headings:scroll-mt-20 prose-headings:font-medium prose-headings:tracking-tight prose-headings:text-gray-900 prose-p:text-gray-700 prose-a:text-gray-900 prose-a:underline prose-a:decoration-gray-300 prose-a:underline-offset-2 hover:prose-a:decoration-gray-900 prose-strong:font-medium prose-strong:text-gray-900 dark:prose-headings:text-gray-100 dark:prose-p:text-gray-300 dark:prose-a:text-gray-100 dark:prose-a:decoration-gray-700 dark:hover:prose-a:decoration-gray-100 dark:prose-strong:text-gray-100"
+            class="prose prose-base max-w-none dark:prose-invert md:prose-lg prose-headings:scroll-mt-20 prose-headings:font-medium prose-headings:leading-tight prose-headings:tracking-tight prose-headings:text-gray-900 prose-p:leading-relaxed prose-p:text-gray-700 prose-a:text-gray-900 prose-a:underline prose-a:decoration-gray-300 prose-a:underline-offset-2 hover:prose-a:decoration-gray-900 prose-strong:font-medium prose-strong:text-gray-900 prose-li:leading-relaxed dark:prose-headings:text-gray-100 dark:prose-p:text-gray-300 dark:prose-a:text-gray-100 dark:prose-a:decoration-gray-700 dark:hover:prose-a:decoration-gray-100 dark:prose-strong:text-gray-100"
             set:html={htmlContent}
           />
         </div>
@@ -243,7 +245,7 @@ imageData.forEach((img, index) => {
           headings.length > 1 && (
             <aside class="hidden lg:block">
               <nav class="sticky top-20">
-                <h2 class="mb-3 text-sm font-medium text-gray-900 dark:text-gray-100">
+                <h2 class="mb-3 text-[0.9375rem] font-semibold text-gray-900 dark:text-gray-100">
                   Table of Contents
                 </h2>
                 <ul class="space-y-1.5">
@@ -252,7 +254,7 @@ imageData.forEach((img, index) => {
                       <a
                         href={`#${h.id}`}
                         data-toc-id={h.id}
-                        class={`toc-link 'text-gray-600 dark:hover:text-gray-100' } block text-sm leading-relaxed transition-colors hover:text-gray-900 dark:text-gray-400`}
+                        class={`toc-link 'text-gray-600 dark:hover:text-gray-100' } block text-sm font-semibold leading-relaxed transition-colors hover:text-gray-900 dark:text-gray-400`}
                       >
                         {h.text}
                       </a>
