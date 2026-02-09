@@ -1,0 +1,11 @@
+/* Search results mark highlighting */
+#search-results mark {
+  background-color: rgb(229 229 229);
+  color: inherit;
+  border-radius: 2px;
+  padding: 0 2px;
+}
+
+.dark #search-results mark {
+  background-color: rgb(38 38 38);
+}

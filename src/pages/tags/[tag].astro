@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostCard from '../../components/PostCard.astro';
 import { getCollection } from 'astro:content';
 import { getReadingTime } from '../../utils/reading-time';
 
@@ -66,65 +67,6 @@ const displayTag = posts[0]?.originalTag ?? tag;
     class="grid gap-4"
     style="grid-template-columns: repeat(auto-fill, minmax(min(100%, 310px), 1fr));"
   >
-    {
-      posts.map((post) => {
-        const coverMatch = post.cover?.match(/^(.+)-(\d+)\.(\w+)$/);
-        const thumbSrc = coverMatch ? `${coverMatch[1]}-480.${coverMatch[3]}` : null;
-        return (
-          <a
-            href={`/${post.slug}`}
-            class="group flex flex-col overflow-hidden rounded-lg border border-gray-200 transition-colors hover:border-gray-400 dark:border-gray-800 dark:hover:border-gray-600"
-          >
-            {thumbSrc && (
-              <div class="aspect-[2/1] overflow-hidden bg-gray-100 dark:bg-gray-900">
-                <img
-                  src={thumbSrc}
-                  alt={post.title}
-                  width="480"
-                  height="240"
-                  loading="lazy"
-                  decoding="async"
-                  class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                />
-              </div>
-            )}
-            <div class="flex flex-1 flex-col p-5">
-              <time
-                datetime={post.date.toISOString()}
-                class="mb-2 text-xs text-gray-500 dark:text-gray-500"
-              >
-                {post.date.toLocaleDateString('vi-VN', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                })}
-              </time>
-              <h2 class="mb-2 text-base font-medium text-gray-900 dark:text-gray-100">
-                {post.title}
-              </h2>
-              {post.description && (
-                <p class="mb-3 line-clamp-2 text-sm text-gray-600 dark:text-gray-400">
-                  {post.description}
-                </p>
-              )}
-              <div class="mt-auto flex items-center gap-2">
-                <span class="text-xs text-gray-500 dark:text-gray-500">
-                  {post.readingTime} phút đọc
-                </span>
-                {post.tags.length > 0 && (
-                  <div class="flex gap-1.5">
-                    {post.tags.slice(0, 2).map((tag: string) => (
-                      <span class="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-600 dark:bg-gray-900 dark:text-gray-400">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          </a>
-        );
-      })
-    }
+    {posts.map((post) => <PostCard {...post} />)}
   </div>
 </BaseLayout>

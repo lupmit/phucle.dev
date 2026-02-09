@@ -124,7 +124,7 @@ imageData.forEach((img, index) => {
   tags={data.tags}
   preloadImage={coverData ? { src: coverData.src, srcset: coverData.srcset } : undefined}
 >
-  <div class="-mt-8 md:-mt-12">
+  <div>
     <script
       type="application/ld+json"
       set:html={JSON.stringify({
@@ -159,60 +159,76 @@ imageData.forEach((img, index) => {
       })}
     />
     {
-      coverData ? (
-        <header class="relative -mx-4 mb-8 md:-mx-6 md:mb-12">
-          <figure class="relative overflow-hidden">
-            <img
-              src={coverData.src}
-              srcset={coverData.srcset}
-              sizes="100vw"
-              alt={data.title}
-              width="768"
-              height="403"
-              fetchpriority="high"
-              class="cover-image aspect-[5/2] w-full object-cover md:aspect-[3/1]"
-            />
-            <div class="absolute inset-0 bg-black/60" />
-            <div class="absolute inset-0 flex flex-col items-center justify-center px-6 text-center md:px-8">
-              <h1 class="mb-3 text-[1.75rem] font-semibold leading-tight tracking-tighter text-white sm:text-3xl md:text-[2.5rem] md:leading-tight">
-                {data.title}
-              </h1>
-              <div class="flex items-center gap-2 text-sm text-white/90 md:text-[0.9375rem]">
-                <time datetime={data.date.toISOString()}>
-                  {data.date.toLocaleDateString('en-US', {
+      coverData && (
+        <figure class="relative -mx-4 mb-8 overflow-hidden md:-mx-6 md:mb-8">
+          <img
+            src={coverData.src}
+            srcset={coverData.srcset}
+            sizes="100vw"
+            alt={data.title}
+            width="768"
+            height="403"
+            fetchpriority="high"
+            class="cover-image aspect-[5/2] w-full object-cover md:aspect-[3/1]"
+          />
+        </figure>
+      )
+    }
+
+    <div class="lg:grid lg:grid-cols-[1fr_12rem] lg:gap-16">
+      <div>
+        <header class="mb-6 md:mb-6">
+          <div
+            class="mb-8 flex flex-col gap-3 text-sm text-gray-500 dark:text-gray-500 md:flex-row md:items-center md:gap-2"
+          >
+            <a href="/about" class="flex items-center gap-2.5 transition-opacity hover:opacity-80">
+              <img
+                src="https://github.com/lupmit.png?s=64"
+                alt="Phuc Le"
+                width="32"
+                height="32"
+                class="h-8 w-8 rounded-full"
+              />
+              <span class="text-base font-medium text-gray-700 dark:text-gray-300">Phuc Le</span>
+            </a>
+            <span class="hidden md:inline">&middot;</span>
+            <div class="flex items-center gap-2">
+              <time datetime={data.date.toISOString()}>
+                {
+                  data.date.toLocaleDateString('en-US', {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric',
-                  })}
-                </time>
-                <span>&middot;</span>
-                <span>{readingTime} min read</span>
-              </div>
+                  })
+                }
+              </time>
+              <span>&middot;</span>
+              <span>{readingTime} min read</span>
             </div>
-          </figure>
-        </header>
-      ) : (
-        <header class="mb-8 md:mb-12">
-          <h1 class="mb-3 text-[1.75rem] font-semibold leading-tight tracking-tighter text-gray-900 dark:text-gray-100 sm:text-3xl md:mb-4 md:text-[2.5rem] md:leading-tight">
+          </div>
+          <h1
+            class="text-[1.75rem] font-semibold leading-tight tracking-tighter text-gray-900 dark:text-gray-100 sm:text-3xl md:text-[2.5rem] md:leading-tight"
+          >
             {data.title}
           </h1>
-          <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-500 md:text-[0.9375rem]">
-            <time datetime={data.date.toISOString()}>
-              {data.date.toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              })}
-            </time>
-            <span>&middot;</span>
-            <span>{readingTime} min read</span>
-          </div>
         </header>
-      )
-    }
-    <article>
-      <div class="lg:grid lg:grid-cols-[1fr_14rem] lg:gap-12">
-        <div>
+
+        {
+          data.tags && data.tags.length > 0 && (
+            <div class="mb-8 flex flex-wrap gap-2 md:mb-10">
+              {data.tags.map((tag: string) => (
+                <a
+                  href={`/tags/${tag}`}
+                  class="rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-700 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                >
+                  #{tag}
+                </a>
+              ))}
+            </div>
+          )
+        }
+
+        <article>
           {
             headings.length > 1 && (
               <nav class="mb-6 rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-800 dark:bg-gray-900 md:mb-8 md:p-4 lg:hidden">
@@ -236,41 +252,105 @@ imageData.forEach((img, index) => {
           }
 
           <div
-            class="prose prose-base max-w-none dark:prose-invert md:prose-lg prose-headings:scroll-mt-20 prose-headings:font-medium prose-headings:leading-tight prose-headings:tracking-tight prose-headings:text-gray-900 prose-p:leading-relaxed prose-p:text-gray-700 prose-a:text-gray-900 prose-a:underline prose-a:decoration-gray-300 prose-a:underline-offset-2 hover:prose-a:decoration-gray-900 prose-strong:font-medium prose-strong:text-gray-900 prose-li:leading-relaxed dark:prose-headings:text-gray-100 dark:prose-p:text-gray-300 dark:prose-a:text-gray-100 dark:prose-a:decoration-gray-700 dark:hover:prose-a:decoration-gray-100 dark:prose-strong:text-gray-100"
+            class="prose prose-lg max-w-none dark:prose-invert prose-headings:scroll-mt-20 prose-headings:font-medium prose-headings:leading-tight prose-headings:tracking-tight prose-headings:text-gray-900 prose-p:leading-relaxed prose-p:text-gray-700 prose-a:text-gray-900 prose-a:underline prose-a:decoration-gray-300 prose-a:underline-offset-2 hover:prose-a:decoration-gray-900 prose-strong:font-medium prose-strong:text-gray-900 prose-li:leading-relaxed dark:prose-headings:text-gray-100 dark:prose-p:text-gray-300 dark:prose-a:text-gray-100 dark:prose-a:decoration-gray-700 dark:hover:prose-a:decoration-gray-100 dark:prose-strong:text-gray-100"
             set:html={htmlContent}
           />
-        </div>
-
-        {
-          headings.length > 1 && (
-            <aside class="hidden lg:block">
-              <nav class="sticky top-20">
-                <h2 class="mb-3 text-[0.9375rem] font-semibold text-gray-900 dark:text-gray-100">
-                  Table of Contents
-                </h2>
-                <ul class="space-y-1.5">
-                  {headings.map((h) => (
-                    <li class={h.depth === 2 ? '' : 'ml-3'}>
-                      <a
-                        href={`#${h.id}`}
-                        data-toc-id={h.id}
-                        class="toc-link block text-sm leading-relaxed text-gray-600 transition-colors hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
-                      >
-                        {h.text}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </nav>
-            </aside>
-          )
-        }
+        </article>
       </div>
-    </article>
+
+      {
+        headings.length > 1 && (
+          <aside class="hidden lg:block">
+            <nav class="sticky top-20">
+              <h2 class="mb-3 text-[0.9375rem] font-semibold text-gray-900 dark:text-gray-100">
+                Table of Contents
+              </h2>
+              <ul class="space-y-1.5">
+                {headings.map((h) => (
+                  <li class={h.depth === 2 ? '' : 'ml-3'}>
+                    <a
+                      href={`#${h.id}`}
+                      data-toc-id={h.id}
+                      class="toc-link block text-sm leading-relaxed text-gray-600 transition-colors hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+                    >
+                      {h.text}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          </aside>
+        )
+      }
+    </div>
+
+    <div
+      class="mt-12 flex flex-wrap items-center justify-between gap-4 border-y border-gray-200 py-6 dark:border-gray-800"
+    >
+      <div class="flex flex-wrap items-center gap-3">
+        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Share:</span>
+        <a
+          href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(`https://phucle.dev/${slug}`)}&text=${encodeURIComponent(data.title)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-800 dark:text-gray-300 dark:hover:bg-gray-900"
+          aria-label="Share on Twitter"
+        >
+          <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+            <path
+              d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"
+            ></path>
+          </svg>
+          Twitter
+        </a>
+        <a
+          href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`https://phucle.dev/${slug}`)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-800 dark:text-gray-300 dark:hover:bg-gray-900"
+          aria-label="Share on Facebook"
+        >
+          <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+            <path
+              d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"
+            ></path>
+          </svg>
+          Facebook
+        </a>
+        <a
+          href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(`https://phucle.dev/${slug}`)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-800 dark:text-gray-300 dark:hover:bg-gray-900"
+          aria-label="Share on LinkedIn"
+        >
+          <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+            <path
+              d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"
+            ></path>
+          </svg>
+          LinkedIn
+        </a>
+      </div>
+      <button
+        id="copy-link-btn"
+        class="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-800 dark:text-gray-300 dark:hover:bg-gray-900"
+        aria-label="Copy link"
+      >
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+          ></path>
+        </svg>
+        <span id="copy-link-text">Copy link</span>
+      </button>
+    </div>
 
     {
       relatedPosts.length > 0 && (
-        <section class="mt-16 border-t border-gray-200 pt-12 dark:border-gray-800">
+        <section class="mt-16 pt-12">
           <h2 class="mb-6 text-sm font-medium text-gray-500 dark:text-gray-500">Related Posts</h2>
           <div class="grid gap-3 sm:grid-cols-2">
             {relatedPosts.map((rp) => {
@@ -361,27 +441,6 @@ imageData.forEach((img, index) => {
         })();
       </script>
     </section>
-
-    <div class="mt-12">
-      <a
-        href="/"
-        class="inline-flex items-center gap-1.5 text-sm text-gray-500 transition-colors hover:text-gray-900 dark:text-gray-500 dark:hover:text-gray-100"
-      >
-        <svg
-          class="h-3.5 w-3.5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"></path>
-        </svg>
-        Back to home
-      </a>
-    </div>
   </div>
 </BaseLayout>
 
@@ -563,6 +622,20 @@ imageData.forEach((img, index) => {
 
   const observer = new MutationObserver(() => updateGiscusTheme());
   observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+
+  // Copy link button
+  const copyLinkBtn = document.getElementById('copy-link-btn');
+  const copyLinkText = document.getElementById('copy-link-text');
+  copyLinkBtn?.addEventListener('click', async () => {
+    const url = window.location.origin + window.location.pathname;
+    await navigator.clipboard.writeText(url);
+    if (copyLinkText) {
+      copyLinkText.textContent = 'Copied!';
+      setTimeout(() => {
+        copyLinkText.textContent = 'Copy link';
+      }, 2000);
+    }
+  });
 
   // Copy code button
   document.querySelectorAll('.code-copy').forEach((btn) => {
