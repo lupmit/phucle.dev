@@ -10,4 +10,23 @@ export default defineConfig({
     inlineStylesheets: 'always',
   },
   compressHTML: true,
+  vite: {
+    build: {
+      minify: 'esbuild',
+      cssMinify: 'esbuild',
+      rollupOptions: {
+        output: {
+          compact: true,
+          manualChunks: undefined,
+        },
+      },
+    },
+    esbuild: {
+      minifyWhitespace: true,
+      minifyIdentifiers: true,
+      minifySyntax: true,
+      drop: ['console', 'debugger'],
+      legalComments: 'none',
+    },
+  },
 });

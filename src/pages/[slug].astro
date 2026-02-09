@@ -224,7 +224,7 @@ imageData.forEach((img, index) => {
                     <li class={h.depth === 2 ? '' : 'ml-3'}>
                       <a
                         href={`#${h.id}`}
-                        class={`'text-gray-600 dark:hover:text-gray-100' } block text-sm font-semibold leading-relaxed transition-colors hover:text-gray-900 dark:text-gray-400`}
+                        class="block text-sm leading-relaxed text-gray-600 transition-colors hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
                       >
                         {h.text}
                       </a>
@@ -254,7 +254,7 @@ imageData.forEach((img, index) => {
                       <a
                         href={`#${h.id}`}
                         data-toc-id={h.id}
-                        class={`toc-link 'text-gray-600 dark:hover:text-gray-100' } block text-sm font-semibold leading-relaxed transition-colors hover:text-gray-900 dark:text-gray-400`}
+                        class="toc-link block text-sm leading-relaxed text-gray-600 transition-colors hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
                       >
                         {h.text}
                       </a>
@@ -322,6 +322,7 @@ imageData.forEach((img, index) => {
       <div id="giscus-container"></div>
       <script is:inline>
         (function () {
+          var theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
           var s = document.createElement('script');
           s.src = 'https://giscus.app/client.js';
           s.setAttribute('data-repo', 'lupmit/phucle.dev');
@@ -333,7 +334,7 @@ imageData.forEach((img, index) => {
           s.setAttribute('data-reactions-enabled', '1');
           s.setAttribute('data-emit-metadata', '0');
           s.setAttribute('data-input-position', 'top');
-          s.setAttribute('data-theme', 'https://phucle.dev/giscus-custom.css');
+          s.setAttribute('data-theme', theme);
           s.setAttribute('data-lang', 'en');
           s.setAttribute('data-loading', 'lazy');
           s.setAttribute('crossorigin', 'anonymous');
@@ -344,10 +345,12 @@ imageData.forEach((img, index) => {
           var observer = new MutationObserver(function (mutations) {
             mutations.forEach(function (mutation) {
               if (mutation.attributeName === 'class') {
+                var isDark = document.documentElement.classList.contains('dark');
+                var newTheme = isDark ? 'dark' : 'light';
                 var iframe = document.querySelector('iframe.giscus-frame');
                 if (iframe) {
                   iframe.contentWindow.postMessage(
-                    { giscus: { setConfig: { theme: 'https://phucle.dev/giscus-custom.css' } } },
+                    { giscus: { setConfig: { theme: newTheme } } },
                     'https://giscus.app',
                   );
                 }
