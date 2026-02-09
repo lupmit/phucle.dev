@@ -1,17 +1,22 @@
 {
   "name": "phucle.dev",
   "short_name": "phucle.dev",
-  "description": "Tò mò về công nghệ, viết lại những gì khám phá được",
+  "description": "Tech blog - Sharing knowledge and programming experience",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0f172a",
-  "theme_color": "#2563eb",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
   "icons": [
     {
       "src": "/favicon.ico",
-      "sizes": "16x16 32x32 48x48 64x64 128x128 256x256",
+      "sizes": "16x16 32x32",
       "type": "image/x-icon"
     },
-    { "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
   ]
 }
