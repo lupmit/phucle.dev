@@ -184,7 +184,6 @@ imageData.forEach((img, index) => {
             <a href="/about" class="flex items-center gap-2.5 transition-opacity hover:opacity-80">
               <img
                 src="https://github.com/lupmit.png?s=64"
-                alt="Phuc Le"
                 width="32"
                 height="32"
                 class="h-8 w-8 rounded-full"
@@ -654,7 +653,6 @@ imageData.forEach((img, index) => {
     });
   });
 
-  // TOC active heading highlight
   const tocLinks = document.querySelectorAll<HTMLAnchorElement>('.toc-link');
   if (tocLinks.length > 0) {
     const headingIds = Array.from(tocLinks).map((l) => l.dataset.tocId!);
@@ -662,27 +660,22 @@ imageData.forEach((img, index) => {
       .map((id) => document.getElementById(id))
       .filter(Boolean) as HTMLElement[];
 
-    const updateActive = () => {
-      let activeId = '';
-      const threshold = 100; // Distance from top of viewport
+    let activeId = '';
 
-      // Find the last heading that has scrolled past the threshold
-      for (const el of headingEls) {
-        const rect = el.getBoundingClientRect();
-        if (rect.top < threshold) {
-          activeId = el.id;
-        } else {
-          break;
-        }
-      }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            activeId = entry.target.id;
+            tocLinks.forEach((link) => {
+              link.classList.toggle('active', link.dataset.tocId === activeId);
+            });
+          }
+        });
+      },
+      { rootMargin: '-100px 0px -66% 0px' },
+    );
 
-      // Only highlight the exact active heading
-      tocLinks.forEach((link) => {
-        link.classList.toggle('active', link.dataset.tocId === activeId);
-      });
-    };
-
-    window.addEventListener('scroll', updateActive, { passive: true });
-    updateActive();
+    headingEls.forEach((el) => observer.observe(el));
   }
 </script>
