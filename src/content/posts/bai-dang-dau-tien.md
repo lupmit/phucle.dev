@@ -8,22 +8,22 @@ published: true
 cover: '/images/posts/bai-dang-dau-tien/webb4-1200.webp'
 ---
 
-# Đây là heading 1
+# This is heading 1
 
-very good nha
+Very good.
 
-## First come first serve
+## First come, first served
 
 ```javascript
 var x = 1;
 console.log(x);
 ```
 
-Bạn có khoẻ hân!
+How are you, Hân!
 
 hello
 
-### Điều gì đến rồi sẽ đến
+### What will be, will be.
 
 ![image](/images/posts/bai-dang-dau-tien/pexels-jess-vide-4322442-768.webp)
 
